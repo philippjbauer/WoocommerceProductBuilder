@@ -1,6 +1,9 @@
 <?php
 /**
  * WooCommerce Product Builder Tablist Template
+ *
+ * @author	Philipp Bauer
+ * @version	0.1
  */
 global $wcpb;
 $unlocked = count( $wcpb->arr_session_data['current_product'] ) > 0 ? true : false;

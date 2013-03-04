@@ -4,8 +4,8 @@
  *
  * Insert WCPB functions / templates into WordPress content
  *
- * @author		Philipp Bauer
- * @version		1.0
+ * @author	Philipp Bauer
+ * @version	0.1
  */
  
 /**
@@ -25,5 +25,4 @@ function get_wc_product_builder_page( $attr ) {
  * Shortcode creation.
  */
 add_shortcode( 'wc_product_builder_page', 'get_wc_product_builder_page' );
-
 ?>

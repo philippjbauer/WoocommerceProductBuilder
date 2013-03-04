@@ -13,6 +13,7 @@
  * @package WooCommerce Product Builder
  * @category Extension
  * @author Philipp Bauer
+ * @version 0.1
  */
 
 /**

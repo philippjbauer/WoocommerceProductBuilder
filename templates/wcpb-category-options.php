@@ -3,6 +3,9 @@
  * WooCommerce Product Builder Options Template
  *
  * Shows all options in a categorized manner.
+ *
+ * @author	Philipp Bauer
+ * @version	0.1
  */
 global $wcpb;
 

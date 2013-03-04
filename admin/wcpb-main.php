@@ -1,4 +1,10 @@
 <?php
+/**
+ * WooCommerce Product Builder Main Backend Settings Page
+ *
+ * @author	Philipp Bauer
+ * @version	0.1
+ */
 global $wcpb;
 
 function fuzzy_key_search( $haystack, $needle ) {
