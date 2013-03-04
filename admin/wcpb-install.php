@@ -1,4 +1,12 @@
 <?php
+/**
+ * WooCommerce Product Builder Install Routine
+ *
+ * Install WCPB builder page, create export folder and update version in DB
+ *
+ * @author		Philipp Bauer
+ * @version		1.0
+ */
 
 /**
  * Install the product builder page.

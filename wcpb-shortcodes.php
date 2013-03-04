@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * WooCommerce Product Builder Shortcodes
+ *
+ * Insert WCPB functions / templates into WordPress content
+ *
+ * @author		Philipp Bauer
+ * @version		1.0
+ */
+ 
 /**
  *	Get product builder from template and return it.
  *

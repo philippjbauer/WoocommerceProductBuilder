@@ -43,17 +43,17 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		/**
 		 * @var int
 		 */
-		var $int_active_product_cat;
+		var $int_product_cat;
 		
 		/**
 		 * @var array
 		 */
-		var $arr_product_option_amounts;
+		var $arr_optioncat_amounts;
 		
 		/**
 		 * @var array
 		 */
-		var $arr_subcat_custom_titles;
+		var $arr_optioncat_titles;
 		
 		/**
 		 * WCPB Constructor.
@@ -78,29 +78,28 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 			global $woocommerce;
 			
 			/* SESSION ACTIONS */
-			add_action( 'init', array( &$this, 'start_session', 1 ) );		// Start session if none is started yet.
-			add_action( 'wp_login', array( &$this, 'destroy_session' ) );	// Destroy session on wp_login
-			add_action( 'wp_logout', array( &$this, 'destroy_session' ) );	// Destroy session on wp_logout
-			
-			// Reserve namespace in session
-			if ( ! is_array( $_SESSION['wcpb'] ) ) {
-				$_SESSION['wcpb'] = array();
-				$this->update_session_data();
-			}
+			add_action( 'init', array( &$this, 'start_session' ) );				// Start session if none is started yet.
+			add_action( 'wp_login', array( &$this, 'destroy_session' ) );		// Destroy session on wp_login
+			add_action( 'wp_logout', array( &$this, 'destroy_session' ) );		// Destroy session on wp_logout
+			if ( ! is_array( $_SESSION['wcpb'] ) ) $_SESSION['wcpb'] = array();	// Reserve namespace in session
+			$this->update_session_data();
 			
 			/* LOCALIZATION */
 			$this->load_localization();
 			
 			/* BACKEND ACTIONS */
-			add_action( 'admin_menu', array( &$this, 'admin_menu' ) );											// Create backend menu links.
-			$this->int_active_product_cat = get_option( 'wcpb_active_product_cat' );							// Save active product cat.
-			$this->arr_product_option_amounts = unserialize( get_option( 'wcpb_product_option_amounts' ) ); 	// Get how many options may be chosen (per category) by the user
-			$this->arr_subcat_custom_titles = unserialize( get_option( 'wcpb_subcat_custom_titles' ) ); 		// Get custom titles for product builder subcategories
+			add_action( 'admin_menu', array( &$this, 'admin_menu' ) );								// Create backend menu links.
+			$this->int_product_cat = get_option( 'wcpb_product_cat' );								// Save active product cat.
+			$this->arr_optioncat_amounts = unserialize( get_option( 'wcpb_optioncat_amounts' ) ); 	// Get how many options may be chosen (per category) by the user
+			$this->arr_optioncat_titles = unserialize( get_option( 'wcpb_optioncat_titles' ) ); 	// Get custom titles for product builder subcategories
 
 			/* FRONTEND ACTIONS */
 			add_action( 'wcpb_before_product_builder', array( $woocommerce, 'show_messages' ) );
 			add_action( 'wcpb_before_product_builder', array( &$this, 'user_actions' ) );
 			add_action( 'wcpb_before_product_builder', array( &$this, 'product_actions' ) );
+			
+			add_action( 'wcpb_category_tablist', array( &$this, 'category_tablist' ) );
+			add_action( 'wcpb_category_options', array( &$this, 'category_options' ) );
 			
 			/* BACKEND INCLUDES */
 			if ( is_admin() ) $this->admin_includes();
@@ -116,7 +115,8 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		 * @return void
 		 */
 		public function frontend_includes() {
-			include( 'wcpb-shortcodes.php' );		// Init shortcodes
+			include( 'wcpb-shortcodes.php' );	// Initializes shortcodes
+			include( 'wcpb-frontend.php' );		// Provides frontend functions
 		}
 		
 		/**
@@ -176,7 +176,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		 */
 		public function clear_session() {
 			if ( isset( $_SESSION['wcpb'] ) )
-				unset( $_SESSION['wcpb'] );	// destroys variables from WCPB plugin only
+				unset( $_SESSION['wcpb'], $this->arr_session_data );	// destroys variables from WCPB plugin only
 		}
 		
 		/**
@@ -187,7 +187,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		 */
 		public function update_session_data() {
 			if ( isset( $_SESSION['wcpb'] ) )
-				$this->arr_session_data = $_SESSION['wcpb'];
+				$this->arr_session_data = &$_SESSION['wcpb'];
 		}
 		
 		/**
@@ -218,7 +218,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		 * @return void
 		 */
 		public function admin_menu_main() {
-			if ( !current_user_can( 'manage_woocommerce_products' ) )  {
+			if ( ! current_user_can( 'manage_woocommerce' ) )  {
 				wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 			}
 			include( 'admin/wcpb-main.php' );
@@ -231,7 +231,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		 * @return void
 		 */
 		public function admin_menu_export() {
-			if ( !current_user_can( 'manage_woocommerce_products' ) )  {
+			if ( ! current_user_can( 'manage_woocommerce' ) )  {
 				wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 			}
 			include( 'admin/wcpb-export.php' );
@@ -243,8 +243,34 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		 * @access public
 		 * @return void
 		 */
-		public function user_actions() {
-		
+		public function user_actions( $args ) {
+			global $woocommerce;
+			if ( is_array( $args ) ) {
+				switch ( $args['action'] ) {
+					case "restart":
+						$this->clear_session();
+						break;
+					case "add_to_cart":
+						if ( count( $this->arr_session_data['current_product'] ) > 0 )
+							$this->add_to_cart();
+						else
+							$woocommerce->add_error(__( 'Please create your custom product first.', 'wcpb' ));
+						break;
+					case "add_product_option":
+						if ( count( $this->arr_session_data['current_product'][$args['option_cat']] ) < $this->arr_optioncat_amounts[$args['option_cat']] ) {
+							for ( $i = 0; $i < $args['option_qty']; $i++ ) {
+								$this->arr_session_data['current_product'][$args['option_cat']][] = $args['option_id'];
+							}
+						}
+						else
+							$woocommerce->add_error( _e( 'You can only choose ' . $this->arr_optioncat_amounts[$args['option_cat']] . ' option(s) from ' . $this->arr_optioncat_titles[$args['option_cat']], 'wcpb' ) );
+						// $this->update_product();
+						break;
+					case "remove_product_option":
+						// $this->update_product();
+						break;
+				}
+			}
 		}
 		
 		/**
@@ -254,7 +280,56 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		 * @return void
 		 */
 		public function product_actions() {
+			global $woocommerce;
+			var_dump( $this->arr_session_data );
+			// $this->clear_session();
+			// $this->update_product_price();
+		}
 		
+		/**
+		 * Update the product.
+		 *
+		 * @access public
+		 * @return void
+		 */
+		public function update_product() {
+			// nothing yet
+		}
+		
+		/**
+		 * Update the product price solely.
+		 *
+		 * @access public
+		 * @return void
+		 */
+		public function update_product_price() {
+			if ( count( $this->arr_session_data['current_product'] ) > 0 ) {
+				// nothing yet
+			}
+		}
+		
+		/**
+		 * Include category tablist.
+		 *
+		 * @access public
+		 * @return void
+		 */
+		public function category_tablist() {
+			ob_start();
+			include( 'templates/wcpb-category-tablist.php' );
+			echo ob_get_clean();
+		}
+		
+		/**
+		 * Include category options.
+		 *
+		 * @access public
+		 * @return void
+		 */
+		public function category_options() {
+			ob_start();
+			include( 'templates/wcpb-category-options.php' );
+			echo ob_get_clean();
 		}
 		
 		/**

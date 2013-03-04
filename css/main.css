@@ -1,0 +1,39 @@
+/**
+ * Main Stylesheet for WooCommerce Product Builder Plugin
+ *
+ * @author	Philipp Bauer
+ * @version	1.0
+ */
+
+.widget-area {
+	display: none;
+}
+
+.wcpb-category-tablist {
+
+}
+
+.wcpb-category-options {
+	
+}
+	.wcpb-category-options ul {
+		list-style: none outside;
+	}
+		.wcpb-category-options li {
+			width: 249px;
+			margin: 0 0 20px;
+			padding: 0 15px;
+			border-right: 1px solid #ccc;
+			float: left;
+		}
+			.wcpb-option-thumb {
+				overflow: hidden;
+				width: 249px;
+				height: 170px;
+				margin: 0 auto 10px;
+			}
+				.wcpb-option-thumb img {
+					width: 100%;
+					height: auto;
+				}
+				
