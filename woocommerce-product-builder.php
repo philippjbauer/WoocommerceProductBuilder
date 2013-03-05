@@ -63,10 +63,9 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		 * @return void
 		 */
 		public function __construct() {
-			// Execute install routine
-			if ( is_admin() ) $this->install();
-			// Initialize WC_Product_Builder
-			add_action( 'woocommerce_init', array( &$this, 'init' ) );
+			global $woocommerce;										// Provide WooCommerce Class
+			if ( is_admin() ) $this->install();							// Execute install routine
+			add_action( 'woocommerce_init', array( &$this, 'init' ) );	// Initialize WC_Product_Builder
 		}
 		
 		/**
@@ -76,8 +75,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		 * @return void
 		 */
 		public function init() {
-			global $woocommerce;
-			
 			/* SESSION ACTIONS */
 			add_action( 'init', array( &$this, 'start_session' ) );				// Start session if none is started yet.
 			add_action( 'wp_login', array( &$this, 'destroy_session' ) );		// Destroy session on wp_login
@@ -245,7 +242,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		 * @return void
 		 */
 		public function user_actions( $args ) {
-			global $woocommerce;
 			if ( is_array( $args ) ) {
 				switch ( $args['action'] ) {
 					case "restart":
@@ -281,7 +277,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		 * @return void
 		 */
 		public function product_actions() {
-			global $woocommerce;
 			var_dump( $this->arr_session_data );
 			// $this->clear_session();
 			// $this->update_product_price();
