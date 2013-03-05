@@ -19,17 +19,23 @@
 /**
  * Check if WooCommerce is active
  **/
-$woocommerce_active = false;
+$bool_woocommerce_active = false;
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
-	$woocommerce_active = true;
+	$bool_woocommerce_active = true;
+	$str_plugins_dir = str_replace( 'woocommerce-product-builder/', '', plugin_dir_path( __FILE__ ) );
+	include_once( $str_plugins_dir . 'woocommerce\woocommerce.php' );
 }
 
 /**
  * Check if Class already exists and WooCommerce is active
  */
-if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
+if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 	
 	class WC_Product_Builder {
+		/**
+		 * @static class
+		 */
+		static $woocommerce;
 		
 		/**
 		 * @var string
@@ -62,8 +68,8 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 		 * @access public
 		 * @return void
 		 */
-		public function __construct() {
-			global $woocommerce;										// Provide WooCommerce Class
+		public function __construct( $woocommerce ) {
+			$this->woocommerce = $woocommerce;
 			if ( is_admin() ) $this->install();							// Execute install routine
 			add_action( 'woocommerce_init', array( &$this, 'init' ) );	// Initialize WC_Product_Builder
 		}
@@ -92,7 +98,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 			$this->arr_optioncat_titles = unserialize( get_option( 'wcpb_optioncat_titles' ) ); 	// Get custom titles for product builder subcategories
 
 			/* FRONTEND ACTIONS */
-			add_action( 'wcpb_before_product_builder', array( $woocommerce, 'show_messages' ) );
+			add_action( 'wcpb_before_product_builder', array( $this->woocommerce, 'show_messages' ) );
 			add_action( 'wcpb_before_product_builder', array( &$this, 'user_actions' ) );
 			add_action( 'wcpb_before_product_builder', array( &$this, 'product_actions' ) );
 			
@@ -251,7 +257,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 						if ( count( $this->arr_session_data['current_product'] ) > 0 )
 							$this->add_to_cart();
 						else
-							$woocommerce->add_error(__( 'Please create your custom product first.', 'wcpb' ));
+							$this->woocommerce->add_error(__( 'Please create your custom product first.', 'wcpb' ));
 						break;
 					case "add_product_option":
 						if ( count( $this->arr_session_data['current_product'][$args['option_cat']] ) < $this->arr_optioncat_amounts[$args['option_cat']] ) {
@@ -260,7 +266,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 							}
 						}
 						else
-							$woocommerce->add_error( _e( 'You can only choose ' . $this->arr_optioncat_amounts[$args['option_cat']] . ' option(s) from ' . $this->arr_optioncat_titles[$args['option_cat']], 'wcpb' ) );
+							$this->woocommerce->add_error( _e( 'You can only choose ' . $this->arr_optioncat_amounts[$args['option_cat']] . ' option(s) from ' . $this->arr_optioncat_titles[$args['option_cat']], 'wcpb' ) );
 						// $this->update_product();
 						break;
 					case "remove_product_option":
@@ -359,8 +365,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $woocommerce_active ) {
 	/**
 	 * Init wc_product_builder class and globalize it.
 	 */
-	$GLOBALS['wcpb'] = new WC_Product_Builder();
+	$GLOBALS['wcpb'] = new WC_Product_Builder( $GLOBALS['woocommerce'] );
 	
 } // END class_exist check
-
 ?>
