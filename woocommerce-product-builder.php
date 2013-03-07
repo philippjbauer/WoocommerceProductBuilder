@@ -48,9 +48,9 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		var $arr_session_data;
 		
 		/**
-		 * @var int
+		 * @var arr
 		 */
-		var $int_product_cat;
+		var $arr_settings;
 		
 		/**
 		 * @var array
@@ -92,10 +92,8 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 			$this->load_localization();
 			
 			/* BACKEND ACTIONS */
-			add_action( 'admin_menu', array( &$this, 'admin_menu' ) );								// Create backend menu links.
-			$this->int_product_cat = get_option( 'wcpb_product_cat' );								// Save active product cat.
-			$this->arr_optioncat_amounts = unserialize( get_option( 'wcpb_optioncat_amounts' ) ); 	// Get how many options may be chosen (per category) by the user
-			$this->arr_optioncat_titles = unserialize( get_option( 'wcpb_optioncat_titles' ) ); 	// Get custom titles for product builder subcategories
+			add_action( 'admin_menu', array( &$this, 'admin_menu' ) );	// Create backend menu links.
+			$this->refresh_settings();
 
 			/* FRONTEND ACTIONS */
 			add_action( 'wcpb_before_product_builder', array( $this->woocommerce, 'show_messages' ) );
@@ -146,6 +144,21 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 				include( 'admin/wcpb-install.php' );	
 				add_action( 'init', 'install_wc_product_builder', 1 );
 			}
+		}
+		
+		/**
+		 * Refresh Settings
+		 *
+		 * @access public
+		 * @return void
+		 */
+		public function refresh_settings() {
+			if ( false !== get_option( 'wcpb_settings' ) ) {
+				$this->arr_settings = get_option( 'wcpb_settings' );			// Get WooCommerce Product Builder Settings
+				$this->arr_optioncat_amounts = $this->arr_settings['optioncat_amounts'];	// Get how many options may be chosen (per category) by the user
+				$this->arr_optioncat_titles	= $this->arr_settings['optioncat_titles'];		// Get custom titles for product builder subcategories
+			}
+			else $this->arr_settings = array();
 		}
 		
 		/**
