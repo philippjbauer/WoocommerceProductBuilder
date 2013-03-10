@@ -33,9 +33,9 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 	
 	class WC_Product_Builder {
 		/**
-		 * @static class
+		 * @var class
 		 */
-		static $woocommerce;
+		var $woocommerce;
 		
 		/**
 		 * @var string
@@ -44,11 +44,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * @var array
-		 */
-		var $arr_session_data;
-		
-		/**
-		 * @var arr
 		 */
 		var $arr_settings;
 		
@@ -61,6 +56,11 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @var array
 		 */
 		var $arr_optioncat_titles;
+		
+		/**
+		 * @var array
+		 */
+		var $arr_session_data;
 		
 		/**
 		 * WCPB Constructor.
@@ -82,11 +82,11 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 */
 		public function init() {
 			/* SESSION ACTIONS */
-			add_action( 'init', array( &$this, 'start_session' ) );				// Start session if none is started yet.
-			add_action( 'wp_login', array( &$this, 'destroy_session' ) );		// Destroy session on wp_login
-			add_action( 'wp_logout', array( &$this, 'destroy_session' ) );		// Destroy session on wp_logout
+			add_action( 'init', array( &$this, 'session_start' ) );				// Start session if none is started yet.
+			add_action( 'wp_login', array( &$this, 'session_destroy' ) );		// Destroy session on wp_login
+			add_action( 'wp_logout', array( &$this, 'session_destroy' ) );		// Destroy session on wp_logout
 			if ( ! is_array( $_SESSION['wcpb'] ) ) $_SESSION['wcpb'] = array();	// Reserve namespace in session
-			$this->update_session_data();
+			$this->session_update_data();
 			
 			/* LOCALIZATION */
 			$this->load_localization();
@@ -99,36 +99,13 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 			add_action( 'wcpb_before_product_builder', array( $this->woocommerce, 'show_messages' ) );
 			add_action( 'wcpb_before_product_builder', array( &$this, 'user_actions' ) );
 			add_action( 'wcpb_before_product_builder', array( &$this, 'product_actions' ) );
-			
-			add_action( 'wcpb_category_tablist', array( &$this, 'category_tablist' ) );
-			add_action( 'wcpb_category_options', array( &$this, 'category_options' ) );
+			add_action( 'wcpb_include_template', array( &$this, 'include_template' ) );
 			
 			/* BACKEND INCLUDES */
 			if ( is_admin() ) $this->admin_includes();
 			
 			/* FRONTEND INCLUDES */
 			$this->frontend_includes();
-		}
-		
-		/**
-		 * Include frontend files.
-		 *
-		 * @access public
-		 * @return void
-		 */
-		public function frontend_includes() {
-			include( 'wcpb-shortcodes.php' );	// Initializes shortcodes
-			include( 'wcpb-frontend.php' );		// Provides frontend functions
-		}
-		
-		/**
-		 * Include admin files.
-		 *
-		 * @access public
-		 * @return void
-		 */
-		public function admin_includes() {
-			// nothing right now
 		}
 		
 		/**
@@ -162,12 +139,43 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		}
 		
 		/**
+		 * Localization.
+		 * 
+		 * @access public
+		 * @return void
+		 */
+		public function load_localization() {
+			load_plugin_textdomain( 'wcpb', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		}
+		
+		/**
+		 * Include frontend files.
+		 *
+		 * @access public
+		 * @return void
+		 */
+		public function frontend_includes() {
+			include( 'wcpb-shortcodes.php' );	// Initializes shortcodes
+			include( 'wcpb-frontend.php' );		// Provides frontend functions
+		}
+		
+		/**
+		 * Include admin files.
+		 *
+		 * @access public
+		 * @return void
+		 */
+		public function admin_includes() {
+			// nothing right now
+		}
+		
+		/**
 		 * Start session.
 		 *
 		 * @access public
 		 * @return void
 		 */
-		public function start_session() {
+		public function session_start() {
 			if ( session_id() == "" )
 				session_start();
 		}
@@ -178,7 +186,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @access public
 		 * @return void
 		 */
-		public function destroy_session() {
+		public function session_destroy() {
 			if ( session_id() != "" ) {
 				session_unset();	// destroys variables
 				session_destroy();	// destroys session
@@ -191,7 +199,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @access public
 		 * @return void
 		 */
-		public function clear_session() {
+		public function session_clear() {
 			if ( isset( $_SESSION['wcpb'] ) )
 				unset( $_SESSION['wcpb'], $this->arr_session_data );	// destroys variables from WCPB plugin only
 		}
@@ -202,19 +210,9 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @access public
 		 * @return void
 		 */
-		public function update_session_data() {
+		public function session_update_data() {
 			if ( isset( $_SESSION['wcpb'] ) )
 				$this->arr_session_data = &$_SESSION['wcpb'];
-		}
-		
-		/**
-		 * Localization.
-		 * 
-		 * @access public
-		 * @return void
-		 */
-		public function load_localization() {
-			load_plugin_textdomain( 'wcpb', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		}
 		
 		/**
@@ -264,7 +262,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 			if ( is_array( $args ) ) {
 				switch ( $args['action'] ) {
 					case "restart":
-						$this->clear_session();
+						$this->session_clear();
 						break;
 					case "add_to_cart":
 						if ( count( $this->arr_session_data['current_product'] ) > 0 )
@@ -275,7 +273,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 					case "add_product_option":
 						if ( count( $this->arr_session_data['current_product'][$args['option_cat']] ) < $this->arr_optioncat_amounts[$args['option_cat']] ) {
 							for ( $i = 0; $i < $args['option_qty']; $i++ ) {
-								$this->arr_session_data['current_product'][$args['option_cat']][] = $args['option_id'];
+								$this->arr_session_data['current_product'][$args['option_cat']][] = (int) $args['option_id'];
 							}
 						}
 						else
@@ -297,53 +295,18 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 */
 		public function product_actions() {
 			var_dump( $this->arr_session_data );
-			// $this->clear_session();
+			// $this->session_clear();
 			// $this->update_product_price();
 		}
-		
+
 		/**
-		 * Update the product.
-		 *
-		 * @access public
+		 * Includes given template
+		 * @param  string $template_file path to / and template filename
 		 * @return void
 		 */
-		public function update_product() {
-			// nothing yet
-		}
-		
-		/**
-		 * Update the product price solely.
-		 *
-		 * @access public
-		 * @return void
-		 */
-		public function update_product_price() {
-			if ( count( $this->arr_session_data['current_product'] ) > 0 ) {
-				// nothing yet
-			}
-		}
-		
-		/**
-		 * Include category tablist.
-		 *
-		 * @access public
-		 * @return void
-		 */
-		public function category_tablist() {
+		public function include_template( $template_file ) {
 			ob_start();
-			include( 'templates/wcpb-category-tablist.php' );
-			echo ob_get_clean();
-		}
-		
-		/**
-		 * Include category options.
-		 *
-		 * @access public
-		 * @return void
-		 */
-		public function category_options() {
-			ob_start();
-			include( 'templates/wcpb-category-options.php' );
+			include $template_file;
 			echo ob_get_clean();
 		}
 		
