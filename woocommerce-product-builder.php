@@ -17,8 +17,8 @@
  */
 
 /**
- * Check if WooCommerce is active
- **/
+ * Check if the WooCommerce plugin is active and include it.
+ */
 $bool_woocommerce_active = false;
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 	$bool_woocommerce_active = true;
@@ -31,41 +31,54 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
  */
 if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 	
+	/**
+	 * WooCommerce Product Builder Class
+	 */
 	class WC_Product_Builder {
 		/**
+		 * Assigned WooCommerce Class
 		 * @var class
 		 */
 		var $woocommerce;
 		
 		/**
+		 * Current WooCommerce Product Builder Version
 		 * @var string
 		 */
 		var $str_version = "0.1";
 		
 		/**
+		 * Contains the WooCommerce Product Builder options fetched from the database
 		 * @var array
 		 */
 		var $arr_settings;
 		
 		/**
+		 * Contains the max amounts of options a customer can choose per category
 		 * @var array
 		 */
 		var $arr_optioncat_amounts;
 		
 		/**
+		 * Contains the category titles ('slug' => 'post_title')
 		 * @var array
 		 */
 		var $arr_optioncat_titles;
 		
 		/**
+		 * Contains the raw session data from $_SESSION['wcpb']
 		 * @var array
 		 */
 		var $arr_session_data;
 		
 		/**
+		 * Contains the customer build product with options and metadata
+		 * @var array
+		 */
+		var $arr_session_product;
+
+		/**
 		 * WCPB Constructor.
-		 *
-		 * @access public
 		 * @return void
 		 */
 		public function __construct( $woocommerce ) {
@@ -76,8 +89,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Init WooCommerce Product Builder.
-		 * 
-		 * @access public
 		 * @return void
 		 */
 		public function init() {
@@ -110,10 +121,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Install upon activation.
-		 *
 		 * Check if new version is available and install / update WooCommerce Product Builder
-		 *
-		 * @access public
 		 * @return void
 		 */
 		public function install() {
@@ -125,8 +133,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Refresh Settings
-		 *
-		 * @access public
 		 * @return void
 		 */
 		public function refresh_settings() {
@@ -139,9 +145,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		}
 		
 		/**
-		 * Localization.
-		 * 
-		 * @access public
+		 * Load Localization.
 		 * @return void
 		 */
 		public function load_localization() {
@@ -150,8 +154,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Include frontend files.
-		 *
-		 * @access public
 		 * @return void
 		 */
 		public function frontend_includes() {
@@ -161,8 +163,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Include admin files.
-		 *
-		 * @access public
 		 * @return void
 		 */
 		public function admin_includes() {
@@ -171,8 +171,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Start session.
-		 *
-		 * @access public
 		 * @return void
 		 */
 		public function session_start() {
@@ -182,8 +180,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Destroy session.
-		 * 
-		 * @access public
 		 * @return void
 		 */
 		public function session_destroy() {
@@ -195,8 +191,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Clear WooCommerce Product Builder Session.
-		 *
-		 * @access public
 		 * @return void
 		 */
 		public function session_clear() {
@@ -206,8 +200,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Update Session Data.
-		 *
-		 * @access public
 		 * @return void
 		 */
 		public function session_update_data() {
@@ -217,8 +209,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Build the Admin Menu Entries in Wordpress backend.
-		 *
-		 * @access public
 		 * @return void
 		 */
 		public function admin_menu() {
@@ -227,9 +217,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		}
 		
 		/**
-		 * Admin Menu Main
-		 *
-		 * @access public
+		 * Include WCPB Main Settings Menu.
 		 * @return void
 		 */
 		public function admin_menu_main() {
@@ -240,9 +228,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		}
 		
 		/**
-		 * Admin Menu Export
-		 *
-		 * @access public
+		 * Include WCPB Export Menu.
 		 * @return void
 		 */
 		public function admin_menu_export() {
@@ -253,13 +239,12 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		}
 		
 		/**
-		 * Handle user actions.
-		 * 
-		 * @access public
+		 * Handle user actions (uses $_POST or $_GET for args normally).
+		 * @param  array $args
 		 * @return void
 		 */
 		public function user_actions( $args ) {
-			if ( is_array( $args ) ) {
+			if ( ! empty( $args['action'] ) ) {
 				switch ( $args['action'] ) {
 					case "restart":
 						$this->session_clear();
@@ -278,10 +263,10 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 						}
 						else
 							$this->woocommerce->add_error( _e( 'You can only choose ' . $this->arr_optioncat_amounts[$args['option_cat']] . ' option(s) from ' . $this->arr_optioncat_titles[$args['option_cat']], 'wcpb' ) );
-						// $this->update_product();
+						$this->product_update();
 						break;
 					case "remove_product_option":
-						// $this->update_product();
+						// $this->product_update();
 						break;
 				}
 			}
@@ -289,18 +274,50 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Handle product actions.
-		 * 
-		 * @access public
 		 * @return void
 		 */
 		public function product_actions() {
 			var_dump( $this->arr_session_data );
 			// $this->session_clear();
 			// $this->update_product_price();
+			$this->product_update();
 		}
 
 		/**
-		 * Includes given template
+		 * Update the current product.
+		 * @return void
+		 */
+		public function product_update()
+		{
+			$arr_temp = array();
+			echo "product update:<br>";
+			foreach ($this->arr_session_data['current_product'] as $arr_optioncat) {
+				foreach ($arr_optioncat as $key => $value) {
+					$arr_option_postdata = get_post( $value, ARRAY_A );
+					$arr_option_postmeta = get_post_meta( $value );
+					$str_thumb_guid = plugins_url( 'assets/img/thumb-placeholder.png', __FILE__ );
+					if ( ! empty( $arr_option_postmeta['_thumbnail_id'][0] ) ) {
+						$arr_thumb_postdata = get_post( $arr_option_postmeta['_thumbnail_id'][0], ARRAY_A );
+						$str_thumb_guid = $arr_thumb_postdata['guid'];
+					}
+
+					$arr_temp[] = array(
+						'ID' => $value,
+						'slug' => $arr_option_postdata['post_name'],
+						'the_title' => $arr_option_postdata['post_title'],
+						'thumbnail_guid' => $str_thumb_guid,
+						'raw_arr_option_postdata' => $arr_option_postdata,
+						'raw_arr_option_postmeta' => $arr_option_postmeta,
+						'raw_arr_thumb_postdata' => $arr_thumb_postdata,
+					);
+				}
+			}			
+			$this->arr_session_product['options'] = $arr_temp;
+			var_dump($this->arr_session_product['options'][0]['raw_arr_option_postmeta']);
+		}
+
+		/**
+		 * Includes given template.
 		 * @param  string $template_file path to / and template filename
 		 * @return void
 		 */
@@ -312,8 +329,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Activate the plugin.
-		 * 
-		 * @access public
 		 * @return void
 		 */
 		public static function activate() {
@@ -322,8 +337,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		
 		/**
 		 * Deactivate the plugin.
-		 * 
-		 * @access public
 		 * @return void
 		 */
 		public static function deactivate() {
