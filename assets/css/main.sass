@@ -1,0 +1,84 @@
+/**
+ * Main Stylesheet for WooCommerce Product Builder Plugin
+ *
+ * @author	Philipp Bauer
+ * @version	0.1
+ */
+
+/**
+ * hide wordpress widget area & make wordpress content area 100% width
+ */
+.widget-area
+	display: none
+
+.site-content
+	width: 100%
+
+/**
+ * wcpb config selection
+ */
+#wcpb-config-selection
+	width: 66%
+	float: left
+
+/**
+ * wcpb tablist
+ */
+.wcpb-category-tablist
+	ul
+		list-style: none outside
+	li
+		float: left
+
+/**
+ * wcpb options
+ */
+.wcpb-category-options
+	ul
+		display: none
+		list-style: none outside
+	ul.active
+		display: block
+	li 
+		width: 44%
+		min-height: 525px
+		margin: 0 0 20px
+		padding: 10px 2.5%
+		border-right: 1px solid #ccc
+		float: left
+	li:nth-of-type(2n)
+		border-right: none
+
+.wcpb-option-thumb
+	overflow: hidden
+	width: 100%
+	height: 170px
+	margin: 0 auto 10px
+	img
+		width: 100%
+		height: auto
+
+/**
+ * wcpb review
+ */
+#wcpb-config-review
+	background-color: #ccc
+	width: 33%
+	float: left
+
+/**
+ * HTML5 Boilerplate Clearfix
+ */
+.clearfix:before,
+.clearfix:after
+	content: " "
+	display: table
+
+.clearfix:after
+	clear: both
+/**
+ * For IE 6/7 only
+ * Include this rule to trigger hasLayout and contain floats.
+ */
+.clearfix
+	*zoom: 1
