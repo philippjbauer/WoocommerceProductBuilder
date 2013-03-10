@@ -13,7 +13,7 @@
  * @return void
  */
 function add_stylesheets() {
-    wp_register_style( 'wcpb-main', plugins_url('css/main.css', __FILE__) );
+    wp_register_style( 'wcpb-main', plugins_url('assets/css/main.css', __FILE__ ) );
     wp_enqueue_style( 'wcpb-main' );
 }
 
