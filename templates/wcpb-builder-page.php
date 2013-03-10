@@ -16,23 +16,25 @@ var_dump( $mix_request );
 	
 	<div id="wcpb-config-selection">
 		<nav class="wcpb-category-tablist">
-			<?php do_action( 'wcpb_category_tablist' ); ?>
+			<?php do_action( 'wcpb_include_template', 'templates/wcpb-category-tablist.php' ); ?>
 		</nav>
 		<section class="wcpb-category-options">
-			<?php do_action( 'wcpb_category_options' ); ?>
+			<?php do_action( 'wcpb_include_template', 'templates/wcpb-category-options.php' ); ?>
 		</section>
+		<div class="clearfix"></div>
 	</div>
 	
 	<div id="wcpb-config-review">
 		<ul class="wcpb-config-review-attr">
-			<?php do_action( 'wcpb_product_attribute_selection' ); ?>
+			<?php // do_action( 'wcpb_include_template', 'templates/wcpb-review-attribute.php' ); ?>
 		</ul>
 		<div class="clearfix"></div>
 		<ul class="wcpb-config-review-thumbs">
-			<?php do_action( 'wcpb_review_thumblist' ); ?>
+			<?php do_action( 'wcpb_include_template', 'templates/wcpb-review-thumblist.php' ); ?>
 		</ul>
 		<div class="wcpb-config-review-list">
-			<!-- <a href="?action=show-details"><?php _e( 'show details', 'wcpb' ); ?></a> | -->
+			<?php do_action( 'wcpb_include_template', 'templates/wcpb-review-textlist.php' ); ?>
+			<a href="<?php echo get_permalink( get_the_id() ); ?>&action=show-details"><?php _e( 'show details', 'wcpb' ); ?></a> |
 			<a href="<?php echo get_permalink( get_the_id() ); ?>&action=restart"><?php _e( 'restart', 'wcpb' ); ?></a>
 		</div>
 		<div class="clearfix"></div>

@@ -10,7 +10,7 @@
 global $wcpb;
 
 // Get subcategories
-$arr_optioncats = get_categories( 'taxonomy=product_cat&hide_empty=0&hierarchical=1&child_of=' . $wcpb->int_product_cat );
+$arr_optioncats = get_categories( 'taxonomy=product_cat&hide_empty=0&hierarchical=1&child_of=' . $wcpb->arr_settings['product_cat'] );
 ?>
 
 <?php
@@ -54,7 +54,7 @@ $arr_options = new WP_Query( $arr_options_args );
 		</div>
 		<h1><?php echo $obj_option->post_title; ?></h1>
 		<p><?php echo $obj_option->post_excerpt; ?></p>
-		<form class="wcpb-option-form" action="<?php echo get_permalink( get_the_ID() ); ?>" method="post">
+		<form class="wcpb-option-form" action="<?php echo get_permalink( get_the_ID() ); echo $i == 1 ? '&optioncat=' . $arr_optioncats[1]->slug : '&optioncat=' . $obj_optioncat->slug; ?>" method="post">
 			<input type="hidden" name="option_id" value="<?php echo $obj_option->ID; ?>">
 			<input type="hidden" name="option_cat" value="<?php echo $obj_optioncat->slug; ?>">
 			<input type="hidden" name="option_qty" value="1">
