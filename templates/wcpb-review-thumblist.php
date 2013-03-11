@@ -26,6 +26,7 @@ endforeach;
 endif;
 ?>
 <?php while ( $int_counter > 0 ) : ?>
-	<li style="background-image: url('<?php echo plugins_url( 'assets/img/thumb-placeholder.png', dirname( __FILE__ ) ); ?>');"><?php _e( 'empty optionslot', 'wcpb' ) ?></li>
+	<li><?php _e( 'empty optionslot', 'wcpb' ) ?></li>
 <?php $int_counter--; endwhile; ?>
+	<div class="clearfix"></div>
 </ul>

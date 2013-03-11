@@ -17,7 +17,7 @@ $i = 1;
 foreach ( $arr_optioncats as $obj_optioncat ) :
 ?>
 
-<ul id="<?php echo $obj_optioncat->slug; ?>"<?php echo ! isset( $_GET['optioncat'] ) && $i == 1 ? ' class="active"' : ( isset( $_GET['optioncat'] ) && $_GET['optioncat'] == $obj_optioncat->slug ? ' class="active"' : '' ) ?>>
+<ul id="<?php echo $obj_optioncat->slug; ?>"<?php echo ( ! isset( $_GET['optioncat'] ) && $i == 1 || isset( $_GET['optioncat'] ) && count( $wcpb->arr_session_data['options'] ) == 0 && $i == 1 ) ? ' class="active"' : ( isset( $_GET['optioncat'] ) && count( $wcpb->arr_session_data['options'] ) > 0 && $_GET['optioncat'] == $obj_optioncat->slug ? ' class="active"' : '' ) ?>>
 
 <?php
 // Get options from this category
@@ -43,14 +43,9 @@ $arr_options = new WP_Query( $arr_options_args );
 	$arr_option_image = false;
 	if ( isset( $arr_option_metadata['_thumbnail_id'] ) )
 		$arr_option_image = get_post( $arr_option_metadata['_thumbnail_id'][0], ARRAY_A );
-		
-	// var_dump( $obj_option );
-	// var_dump( $arr_option_metadata );
 	?>
 	<li>
-		<div class="wcpb-option-thumb">
-			<img src="<?php echo ! $arr_option_image ? 'http://placehold.it/279x170' : $arr_option_image['guid']; ?>" alt="">
-		</div>
+		<div class="wcpb-option-thumb"<?php echo ! $arr_option_image ? '' : ' style="background-image: url(' . $arr_option_image['guid'] . ')"'; ?>></div>
 		<h1><?php echo $obj_option->post_title; ?></h1>
 		<p><?php echo $obj_option->post_excerpt; ?></p>
 		<form class="wcpb-option-form" action="<?php echo get_permalink( get_the_ID() ); echo $i == 1 ? '&optioncat=' . $arr_optioncats[1]->slug : '&optioncat=' . $obj_optioncat->slug; ?>" method="post">
@@ -61,7 +56,7 @@ $arr_options = new WP_Query( $arr_options_args );
 		</form>
 	</li>
 <?php endforeach; ?>
-
+<div class="clearfix"></div>
 </ul>
 
 <?php

@@ -15,6 +15,51 @@
 	width: 100%
 
 /**
+ * General styling
+ */
+.wcpb-align-right
+	display: inline-block
+	text-align: right
+	float: right
+
+/**
+ * wcpb messages
+ */
+.wcpb-message
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fff), to(#eee))
+	background-image: -webkit-linear-gradient(#fff, #eee)
+	background-image: -moz-linear-gradient(#fff, #eee)
+	background-image: -o-linear-gradient(#fff, #eee)
+	background-image: linear-gradient(#fff, #eee)
+	width: 90%
+	height: 40px
+	margin-bottom: 20px
+	padding: 0 5%
+	line-height: 40px
+	-webkit-border-radius: 3px
+	-moz-border-radius: 3px
+	border-radius: 3px
+	-webkit-box-shadow: 0 1px 3px #999
+	-moz-box-shadow: 0 1px 3px #999
+	box-shadow: 0 1px 3px #999
+	position: relative
+	&:before
+		content: ''
+		background: #7c3 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAUCAYAAACAl21KAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAjdJREFUeNqcU02IUlEUPvpCBRejA+pCUMQJFBQCf0AJFEEMaqHboFUxaymKCQbDmHAxMBRBwcBAuA7ChbSRIQUVU0ERXD1w4QwIijig4A9q55RPrqbR+MEH95z73nfPud+5okgkAjsijuwjj6PRaPfOjiL3kU8CgQBMJpPHsVjszS5CHPKjVqsFs9lM8Z7JZHKKdxA6FIvF97xerxD3JRLJq9sK7SFPrFYrqFQqIfdOqVRe31boSCqV7rtcLiHmkWe0EG84cRsOkM/tdjvIZDIhF8ZqxqyQH/kDWcITuS1C7xUKhcRmswnxJTIpBOTad+QDvV4PTqcT5HJ5KB6Pf53NZqzIQ6LH4wG8aIqnyBfNZhOwIhAqugwGgxAKhYAsxVOPjEYjKyKhagwGAxAXOJ/P55VMJrP8iITOr66ubpgfbQ6Hw8/ETzmOO6BqFujSNNdqNWi32ytCN5j8PB6Pl0m1Wv2SWkXsk90Wi4UqFbaPh8NhN5fLrVzg74ZHo9GHarU6ZvJ+259bPUGHWLtr1EE+nwcU+1sI0apUKl/YC9bpdJ80Gs2h2+1m7X7d6XSm1NY6lnM0GAxO6/X6lNlz+nw+jqZ4AbI6mc1mYc1RWB9IvlQqfUM3lgmsCEQiES2p7XCj0QDiJqxMdq/XO+V5ftN3Z1gFn06nt479+hP5WS6Xk2u5a3qYmKeD/lsIWq3WIyz/GS0Xqbd9RLFY/Odr3vj6E4nERSqVuosGhDG8KBQKwM7ZJvwSYADi9sYfOOPEqwAAAABJRU5ErkJggg==) no-repeat center center
+		width: 4%
+		height: 40px
+		text-align: center
+		-webkit-border-radius: 3px 0 0 3px
+		-moz-border-radius: 3px 0 0 3px
+		border-radius: 3px 0 0 3px
+		position: absolute
+		top: 0
+		left: 0
+	&.error:before
+		background: #c13 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAXJJREFUeNqM1EFqg0AUANBRg1mGiIlmI4QIOUWh3qHH6LahoaUh0kKh0E3XvUQPEALBC3TjJm4CRlRcFLoSAv1/GItOZowDXyejefz58xNls9kQNm4hviAOpNt4wovneT7eVbb4DPExGo22uq47HZG1bdvrMAwp2GPIw2QyIZZlTU3T3EZRdF2W5eECQjBwDhjNSGcIfavf709ns9lOkhmP0AFzDaGFqqpv9bcBc1zX5TEhAsMfDocrWqM4jhd5njcwRGpYK1LViFQY3qHgdxz2vd/vB4ZhnCEQq+pDr/5Egg3m8znRNO0MSdOUQEakfvwNjN+mDEmS5H9RFZ0vYL+AiR79QHzyiAyihT2dTiJoAOu7oijOWkPt0ifcNkWt0YCkRwzx2tIaDagNwcIusywTYkEQONXxX0Kqwi7xMh6P7wXYFWakdUDoOB6PssxuEFopiuJfQlqwF/jBv9POhi/QVmf/AFKkjrFtYmc/4vxPgAEAv/+yXngiiCkAAAAASUVORK5CYII=) no-repeat center center
+
+
+/**
  * wcpb config selection
  */
 #wcpb-config-selection
@@ -25,20 +70,54 @@
  * wcpb tablist
  */
 .wcpb-category-tablist
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fff), to(#eee))
+	background-image: -webkit-linear-gradient(#fff, #eee)
+	background-image: -moz-linear-gradient(#fff, #eee)
+	background-image: -o-linear-gradient(#fff, #eee)
+	background-image: linear-gradient(#fff, #eee)
+	height: 50px
+	line-height: 40px
+	-webkit-border-radius: 3px
+	-moz-border-radius: 3px
+	border-radius: 3px
+	-webkit-box-shadow: 0 1px 3px #999
+	-moz-box-shadow: 0 1px 3px #999
+	box-shadow: 0 1px 3px #999
+	a
+		display: block
+		height: 50px
+		padding: 0 25px 0 10px
+		color: #bbb
+		font-weight: bold
+		line-height: 50px
+		text-decoration: none
+		text-shadow: 0 1 0 #333
+		&:hover
+			color: #333
 	ul
 		list-style: none outside
+		margin: 0
+		padding: 0
 	li
+		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAyCAYAAABcfPsmAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA4hJREFUeNqkV11Ik1EY3p+T4TZ1LCQ2Npc/kMwtKiZ0ESYolPZz4U1elTdBUEkSCXUVoaBg3aSFF0JhZUJC3UQ3tU0crmmytByIxJhOnW7ocnPTzZ4z/ODDXNvOOfB4zvkmL+/zvu/zve8n3NzclAsEArdQKGyQy+XzAsYlUigUf7C/BBx7e3taVoNCGBFsbGyIRSLRT4lEEpLJZGfwPEntIflTWFiYgOELOzs75ng8/oDJReIhB3jaBoR3d3dN/Oe5IEWZv2DQLhaLjyBBZlxjVJT5K5FIXAZ1zfb2di8zZQ6hUOhSMBiMIp51uVJO+wOMvgF9H86KXAyK0nmOxLQC4q2trVfMlDmsra1ZAoFAFPG8xkyZZ7RnfX09gGRpqcrm4FpZWSEq+pGfnx9UKpVnM6lIlCkkJSUlcC5xMRKJnATuM8WQD3h6a3l5eRM1epyJMn/BoE0qlapVKpWJFAIV5QOldAUZ14bD4V5myhyWlpaafD5fJBqN1lKVzWFYXFwcQky9h6lIRKN/aPx6LBbLgzwHmWLIrdLS0ngymTyPftQIaV5liiEfXq+3C/FcRSkdZaLMo/4QmV8F9WGOLZPBsrKyBAw2gfppoJ2ZMoeFhYXbfr/fg/OxnJRy2PJ4PAZsXw0GQxtREZPBubk5MTY7+rmtvLycGL4mYfEOpdNB+hpiqcD+EYhSJ2V2dvYU2N3V6XTvMRcl8Og1eU7l4czMjAzbEMaWHvTvczjf4F68IsrW202cBNUq7H2An1p6bre7HgabKyoqvuG6AHzi/54T5enpaRUZ/YqLix+jx9SRrDK9HODZCyRgVK/XE2NdQJja4NTUFOnNVUajMYjrF8BF3QImJycNJBEajeYZJjMy5Q6k+9+MMXS5XEQNg3l5eQNoqfU43/vfmCfJIm7EgMBkMpHhfgSYp270TqfzBFEDSmQUySCif5vJgbQeTkxMSIkaCgoKuouKimpxvpnNMC/JoIZfyKoRez9fDTlTdjgcZHJtNpvNTlx/A5+zLa9/PBwfH0+pQa1WP4L4SVZbmYZ2eNaHBHyorKwkxjoPU0PWBsfGxlpgsNpisQRwtQLfqT8r7Ha7Dsaeook/gRr0ePSc5tWWiqHNZkupAU2mX6vVNuLcnm5cy9bDO+RDsqamRol9eP89R/fxaLVaq0G1A+U2sq+GdyyNi1BuQV/oxFTawO8NtOuvAAMAmZiR9KdlI5IAAAAASUVORK5CYII=) no-repeat top right
+		margin: 0
+		padding: 0
 		float: left
+		&.active a
+			color: #333
 
 /**
  * wcpb options
  */
 .wcpb-category-options
+	margin: 10px 0 0
 	ul
 		display: none
 		list-style: none outside
 	ul.active
 		display: block
+		margin: 0
+		padding: 0
 	li 
 		width: 44%
 		min-height: 525px
@@ -50,21 +129,61 @@
 		border-right: none
 
 .wcpb-option-thumb
+	background: #bfbfbf url('../img/thumb-placeholder.png') no-repeat center center
+	background-size: cover
 	overflow: hidden
 	width: 100%
 	height: 170px
 	margin: 0 auto 10px
-	img
-		width: 100%
-		height: auto
 
 /**
  * wcpb review
  */
 #wcpb-config-review
-	background-color: #ccc
+	background-color: #eee
 	width: 33%
+	margin-left: 1%
 	float: left
+	-webkit-border-radius: 3px
+	-moz-border-radius: 3px
+	border-radius: 3px
+	ul, li
+		margin: 0
+		padding: 0
+
+	& .wcpb-config-review-thumbs
+		padding-top: 10px
+		ul
+			list-style: none outside
+		li
+			background: #bfbfbf url('../img/thumb-placeholder.png') no-repeat center center
+			width: 45.5%
+			height: 150px
+			margin: 0 0 10px 3%
+			font-size: 0px
+			text-indent: -9999px
+			float: left
+
+	& .wcpb-config-review-list
+		padding: 10px 3%
+		ul
+			list-style: none outside
+			border-bottom: 1px solid #333
+		li
+			width: 100%
+			font-weight: bold
+			ul
+				border-bottom: none
+			li
+				width: 94%
+				padding-left: 6%
+				font-weight: normal
+
+.wcpb-config-review-actions
+	display: none
+
+.wcpb-config-review-price
+	display: none
 
 /**
  * HTML5 Boilerplate Clearfix

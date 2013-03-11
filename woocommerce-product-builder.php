@@ -22,8 +22,6 @@
 $bool_woocommerce_active = false;
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 	$bool_woocommerce_active = true;
-	$str_plugins_dir = str_replace( 'woocommerce-product-builder/', '', plugin_dir_path( __FILE__ ) );
-	include_once( $str_plugins_dir . 'woocommerce\woocommerce.php' );
 }
 
 /**
@@ -35,12 +33,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 	 * WooCommerce Product Builder Class
 	 */
 	class WC_Product_Builder {
-		/**
-		 * Assigned WooCommerce Class
-		 * @var class
-		 */
-		var $woocommerce;
-		
 		/**
 		 * Current WooCommerce Product Builder Version
 		 * @var string
@@ -72,11 +64,22 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		var $arr_session_data;
 
 		/**
+		 * Message Stack
+		 * @var array
+		 */
+		var $arr_messages = array();
+
+		/**
+		 * Error Message Stack
+		 * @var array
+		 */
+		var $arr_errors = array();
+
+		/**
 		 * WCPB Constructor.
 		 * @return void
 		 */
-		public function __construct( $woocommerce ) {
-			$this->woocommerce = $woocommerce;
+		public function __construct() {
 			if ( is_admin() ) $this->install();							// Execute install routine
 			add_action( 'woocommerce_init', array( &$this, 'init' ) );	// Initialize WC_Product_Builder
 		}
@@ -101,9 +104,9 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 			$this->refresh_settings();
 
 			/* FRONTEND ACTIONS */
-			add_action( 'wcpb_before_product_builder', array( $this->woocommerce, 'show_messages' ) );
 			add_action( 'wcpb_before_product_builder', array( &$this, 'user_actions' ) );
 			add_action( 'wcpb_before_product_builder', array( &$this, 'product_actions' ) );
+			add_action( 'wcpb_before_product_builder', array( &$this, 'show_messages' ) );
 			add_action( 'wcpb_include_template', array( &$this, 'include_template' ) );
 			
 			/* BACKEND INCLUDES */
@@ -240,6 +243,32 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		}
 		
 		/**
+		 * Add messages to message stack
+		 * @param string $str_message
+		 */
+		public function add_message( $str_message ) {
+			$this->arr_messages[] = $str_message;
+		}
+
+		/**
+		 * Add error message to error stack
+		 * @param string $str_error
+		 */
+		public function add_error( $str_error ) {
+			$this->arr_errors[] = $str_error;
+		}
+
+		public function show_messages()	{
+			// Show Messages
+			if ( count( $this->arr_messages ) > 0 )
+				$this->include_template( plugin_dir_path( __FILE__ ) . 'templates/wcpb-show-messages.php', array( 'messages' => $this->arr_messages ) );
+
+			// Show Errors
+			if ( count( $this->arr_errors ) > 0 )
+				$this->include_template( plugin_dir_path( __FILE__ ) . 'templates/wcpb-show-messages.php', array( 'errors' => $this->arr_errors ) );
+		}
+
+		/**
 		 * Handle user actions (uses $_POST or $_GET for args normally).
 		 * @param  array $args
 		 * @return void
@@ -255,7 +284,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 						if ( count( $this->arr_session_data['current_product'] ) > 0 )
 							$this->add_to_cart();
 						else
-							$this->woocommerce->add_error(__( 'Please create your custom product first.', 'wcpb' ));
+							$this->add_error( __( 'Please create your custom product first.', 'wcpb' ) );
 						break;
 					case "add_option":
 						// Check if category is in session_data, if not create it
@@ -266,18 +295,20 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 								$this->arr_session_data['current_product'][$args['option_cat']][] = (int) $args['option_id'];
 
 								$this->product_update();
-								$this->woocommerce->add_message( _e( $this->arr_session_data['options'][$args['option_id']]['the_title'] . ' added!', 'wcpb' ) );
+								$this->add_message( __( 'Option "' . $this->arr_session_data['options'][$args['option_id']]['the_title'] . '" added!', 'wcpb' ) );
 							}
 						}
 						else
-							$this->woocommerce->add_error( _e( 'You can only choose ' . $this->arr_optioncat_amounts[$args['option_cat']] . ' option(s) from ' . $this->arr_optioncat_titles[$args['option_cat']], 'wcpb' ) );
+							$this->add_error( __( 'You can only choose ' . $this->arr_optioncat_amounts[$args['option_cat']] . ' option(s) from "' . $this->arr_optioncat_titles[$args['option_cat']] . '"', 'wcpb' ) );
 						break;
 					case "remove_option":
 						foreach ( $this->arr_session_data['current_product'] as $str_optioncat_slug => $arr_optioncat ) {
 							foreach ( $arr_optioncat as $int_key => $int_option_id ) {
 								if ( $args['optionid'] == $int_option_id ) {
-									$this->woocommerce->add_message( _e( $this->arr_session_data['options'][$args['optionid']]['the_title'] . ' deleted!', 'wcpb'));
-									unset( $this->arr_session_data['current_product'][$str_optioncat_slug][$int_key], $this->arr_session_data['options'][$int_option_id] );
+									if ( isset( $this->arr_session_data['options'][$args['optionid']] ) ) {
+										$this->add_message( 'Option "' . __( $this->arr_session_data['options'][$args['optionid']]['the_title'] . '" removed!', 'wcpb'));
+										unset( $this->arr_session_data['current_product'][$str_optioncat_slug][$int_key], $this->arr_session_data['options'][$int_option_id] );
+									}
 								}
 							}
 						}
@@ -295,10 +326,24 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @return void
 		 */
 		public function product_actions() {
+			$this->product_sort();
 			$this->product_update();
 
 			// DEBUG
-			var_dump($this->arr_session_data);
+			// var_dump($this->arr_session_data['current_product']);
+		}
+
+		/**
+		 * Sorts current product.
+		 * @return void
+		 */
+		public function product_sort() {
+			$arr_temp = array();
+			foreach ( $this->arr_optioncat_titles as $key => $value ) {
+				if ( ! empty( $this->arr_session_data['current_product'][$key] ) )
+					$arr_temp[$key] = $this->arr_session_data['current_product'][$key];
+			}
+			$this->arr_session_data['current_product'] = $arr_temp;
 		}
 
 		/**
@@ -343,7 +388,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @param  string $template_file path to / and template filename
 		 * @return void
 		 */
-		public function include_template( $template_file ) {
+		public function include_template( $template_file, $args = null ) {
 			ob_start();
 			include $template_file;
 			echo ob_get_clean();
@@ -376,7 +421,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 	/**
 	 * Init wc_product_builder class and globalize it.
 	 */
-	$GLOBALS['wcpb'] = new WC_Product_Builder( $GLOBALS['woocommerce'] );
+	$GLOBALS['wcpb'] = new WC_Product_Builder();
 	
 } // END class_exist check
 ?>

@@ -95,7 +95,6 @@ else if ( fuzzy_key_search( $_POST, 'optioncat_amount_' ) ) {
 }
 
 $wcpb->refresh_settings();
-// var_dump( $wcpb->arr_settings );
 ?>
 
 <div class="wrap">

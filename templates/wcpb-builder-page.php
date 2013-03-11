@@ -29,15 +29,16 @@ do_action( 'wcpb_before_product_builder', $mix_request );
 			<?php // do_action( 'wcpb_include_template', 'templates/wcpb-review-attribute.php' ); ?>
 		</ul>
 		<div class="clearfix"></div>
-		<ul class="wcpb-config-review-thumbs">
+		<div class="wcpb-config-review-thumbs">
 			<?php do_action( 'wcpb_include_template', 'templates/wcpb-review-thumblist.php' ); ?>
-		</ul>
+		</div>
 		<div class="wcpb-config-review-list">
 			<?php do_action( 'wcpb_include_template', 'templates/wcpb-review-textlist.php' ); ?>
-			<a href="<?php echo get_permalink( get_the_id() ); ?>&action=show-details"><?php _e( 'show details', 'wcpb' ); ?></a> |
-			<a href="<?php echo get_permalink( get_the_id() ); ?>&action=restart"><?php _e( 'restart', 'wcpb' ); ?></a>
 		</div>
-		<div class="clearfix"></div>
+		<div class="wcpb-config-review-actions">
+			<a href="<?php echo get_permalink( get_the_id() ); ?>&action=show-details"><?php _e( 'show details', 'wcpb' ); ?></a> |
+			<a href="<?php echo get_permalink( get_the_id() ); ?>&action=restart"><?php _e( 'start over', 'wcpb' ); ?></a>
+		</div>
 		<div class="wcpb-config-review-price">
 			<div class="total"><?php do_action( 'wcpb_show_product_total' ) ?> €</div>
 			<div class="tax"><?php _e( 'incl. VAT, excl. shipping', 'wcpb' ); ?></div>
