@@ -70,12 +70,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @var array
 		 */
 		var $arr_session_data;
-		
-		/**
-		 * Contains the customer build product with options and metadata
-		 * @var array
-		 */
-		var $arr_session_product;
 
 		/**
 		 * WCPB Constructor.
@@ -93,10 +87,10 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 */
 		public function init() {
 			/* SESSION ACTIONS */
-			add_action( 'init', array( &$this, 'session_start' ) );				// Start session if none is started yet.
+			$this->session_start();
+			// add_action( 'init', array( &$this, 'session_start' ) );				// Start session if none is started yet.
 			add_action( 'wp_login', array( &$this, 'session_destroy' ) );		// Destroy session on wp_login
 			add_action( 'wp_logout', array( &$this, 'session_destroy' ) );		// Destroy session on wp_logout
-			if ( ! is_array( $_SESSION['wcpb'] ) ) $_SESSION['wcpb'] = array();	// Reserve namespace in session
 			$this->session_update_data();
 			
 			/* LOCALIZATION */
@@ -174,7 +168,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @return void
 		 */
 		public function session_start() {
-			if ( session_id() == "" )
+			if ( session_id() === "" )
 				session_start();
 		}
 		
@@ -203,8 +197,15 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @return void
 		 */
 		public function session_update_data() {
-			if ( isset( $_SESSION['wcpb'] ) )
+			if ( isset( $_SESSION['wcpb'] ) && is_array( $_SESSION['wcpb'] ) )
 				$this->arr_session_data = &$_SESSION['wcpb'];
+			else {
+				$_SESSION['wcpb'] = array(
+					"current_product" => array(),
+					"options" => array(),
+				);
+				$this->arr_session_data = &$_SESSION['wcpb'];
+			}
 		}
 		
 		/**
@@ -248,6 +249,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 				switch ( $args['action'] ) {
 					case "restart":
 						$this->session_clear();
+						$this->session_update_data();
 						break;
 					case "add_to_cart":
 						if ( count( $this->arr_session_data['current_product'] ) > 0 )
@@ -255,18 +257,34 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 						else
 							$this->woocommerce->add_error(__( 'Please create your custom product first.', 'wcpb' ));
 						break;
-					case "add_product_option":
+					case "add_option":
+						// Check if category is in session_data, if not create it
+						if ( ! isset( $this->arr_session_data['current_product'][$args['option_cat']] ) )
+							$this->arr_session_data['current_product'][$args['option_cat']] = array();
 						if ( count( $this->arr_session_data['current_product'][$args['option_cat']] ) < $this->arr_optioncat_amounts[$args['option_cat']] ) {
 							for ( $i = 0; $i < $args['option_qty']; $i++ ) {
 								$this->arr_session_data['current_product'][$args['option_cat']][] = (int) $args['option_id'];
+
+								$this->product_update();
+								$this->woocommerce->add_message( _e( $this->arr_session_data['options'][$args['option_id']]['the_title'] . ' added!', 'wcpb' ) );
 							}
 						}
 						else
 							$this->woocommerce->add_error( _e( 'You can only choose ' . $this->arr_optioncat_amounts[$args['option_cat']] . ' option(s) from ' . $this->arr_optioncat_titles[$args['option_cat']], 'wcpb' ) );
-						$this->product_update();
 						break;
-					case "remove_product_option":
-						// $this->product_update();
+					case "remove_option":
+						foreach ( $this->arr_session_data['current_product'] as $str_optioncat_slug => $arr_optioncat ) {
+							foreach ( $arr_optioncat as $int_key => $int_option_id ) {
+								if ( $args['optionid'] == $int_option_id ) {
+									$this->woocommerce->add_message( _e( $this->arr_session_data['options'][$args['optionid']]['the_title'] . ' deleted!', 'wcpb'));
+									unset( $this->arr_session_data['current_product'][$str_optioncat_slug][$int_key], $this->arr_session_data['options'][$int_option_id] );
+								}
+							}
+						}
+						if ( count( $this->arr_session_data['options']) == 0 ) {
+							$this->session_clear();
+							$this->session_update_data();
+						}
 						break;
 				}
 			}
@@ -277,43 +295,47 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @return void
 		 */
 		public function product_actions() {
-			var_dump( $this->arr_session_data );
-			// $this->session_clear();
-			// $this->update_product_price();
 			$this->product_update();
+
+			// DEBUG
+			var_dump($this->arr_session_data);
 		}
 
 		/**
 		 * Update the current product.
 		 * @return void
 		 */
-		public function product_update()
-		{
-			$arr_temp = array();
-			echo "product update:<br>";
-			foreach ($this->arr_session_data['current_product'] as $arr_optioncat) {
-				foreach ($arr_optioncat as $key => $value) {
-					$arr_option_postdata = get_post( $value, ARRAY_A );
-					$arr_option_postmeta = get_post_meta( $value );
-					$str_thumb_guid = plugins_url( 'assets/img/thumb-placeholder.png', __FILE__ );
-					if ( ! empty( $arr_option_postmeta['_thumbnail_id'][0] ) ) {
-						$arr_thumb_postdata = get_post( $arr_option_postmeta['_thumbnail_id'][0], ARRAY_A );
-						$str_thumb_guid = $arr_thumb_postdata['guid'];
-					}
+		public function product_update() {
+			if ( ! empty( $this->arr_session_data['current_product'] ) ) {
+				$arr_temp = array();
+				foreach ($this->arr_session_data['current_product'] as $arr_optioncat) {
+					foreach ($arr_optioncat as $key => $value) {
+						// Get postdata and post metadata
+						$arr_option_postdata = get_post( $value, ARRAY_A );
+						$arr_option_postmeta = get_post_meta( $value );
 
-					$arr_temp[] = array(
-						'ID' => $value,
-						'slug' => $arr_option_postdata['post_name'],
-						'the_title' => $arr_option_postdata['post_title'],
-						'thumbnail_guid' => $str_thumb_guid,
-						'raw_arr_option_postdata' => $arr_option_postdata,
-						'raw_arr_option_postmeta' => $arr_option_postmeta,
-						'raw_arr_thumb_postdata' => $arr_thumb_postdata,
-					);
+						// Get thumbnail guid
+						$arr_thumb_postdata = null;
+						$str_thumb_guid = plugins_url( 'assets/img/thumb-placeholder.png', __FILE__ );
+						if ( ! empty( $arr_option_postmeta['_thumbnail_id'][0] ) ) {
+							$arr_thumb_postdata = get_post( $arr_option_postmeta['_thumbnail_id'][0], ARRAY_A );
+							$str_thumb_guid = $arr_thumb_postdata['guid'];
+						}
+
+						// Create option info array
+						$arr_temp[$value] = array(
+							'ID' => $value,
+							'slug' => $arr_option_postdata['post_name'],
+							'the_title' => $arr_option_postdata['post_title'],
+							'thumbnail_guid' => $str_thumb_guid,
+							'raw_arr_option_postdata' => $arr_option_postdata,
+							'raw_arr_option_postmeta' => $arr_option_postmeta,
+							'raw_arr_thumb_postdata' => $arr_thumb_postdata,
+						);
+					}
 				}
-			}			
-			$this->arr_session_product['options'] = $arr_temp;
-			var_dump($this->arr_session_product['options'][0]['raw_arr_option_postmeta']);
+				$this->arr_session_data['options'] = $arr_temp;
+			}
 		}
 
 		/**

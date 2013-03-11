@@ -68,7 +68,7 @@ if ( fuzzy_key_search( $_POST, 'optioncat_amount_' ) ) {
 // Update DB set optioncat(egory) custom titles
 $mix_product_cat = isset( $_POST['product_cat'] ) ? $_POST['product_cat'] : ( isset( $wcpb->arr_settings['product_cat'] ) ? $wcpb->arr_settings['product_cat'] : false );
 if ( false !== $mix_product_cat )
-	$arr_optioncats = get_categories( 'taxonomy=product_cat&hide_empty=0&hierarchical=1&child_of=' . $mix_product_cat );	// get subcategories
+	$mix_optioncats = get_categories( 'taxonomy=product_cat&hide_empty=0&hierarchical=1&child_of=' . $mix_product_cat );	// get subcategories
 if ( fuzzy_key_search( $_POST, 'optioncat_title_' ) && false !== $mix_product_cat ) {
 	$arr_tmp = array();
 	
@@ -133,7 +133,7 @@ $wcpb->refresh_settings();
 				<table class="wcpb-admin-form-elem">
 					<tr>
 						<td><label for="optioncat_amount_total"><?php _e( 'Max. Option Amount', 'wcpb' ); ?></label></td>
-						<td><input type="text" id="optioncat_amount_total" name="optioncat_amount_total" value="<?php echo $wcpb->arr_optioncat_amounts['total'] > 0 ? $wcpb->arr_optioncat_amounts['total'] : 0; ?>"></td>
+						<td><input type="text" id="optioncat_amount_total" name="optioncat_amount_total" value="<?php echo $wcpb->arr_optioncat_amounts['total'] > 1 ? $wcpb->arr_optioncat_amounts['total'] : 1; ?>"></td>
 					</tr>
 				</table>
 			</fieldset>
@@ -143,7 +143,7 @@ $wcpb->refresh_settings();
 				<p><?php _e( 'Set a maximum amount of options a customer can choose from each category and define custom titles (optional). [Amount: 0 = unlimited]', 'wcpb' ); ?></p>
 				<?php if ( isset( $wcpb->arr_settings['product_cat'] ) ) : ?>
 				
-					<?php if ( count( $arr_optioncats ) > 0 ) : ?>
+					<?php if ( count( $mix_optioncats ) > 0 ) : ?>
 					
 					<table class="wcpb-admin-form-elem">
 						<tr>
@@ -152,13 +152,13 @@ $wcpb->refresh_settings();
 							<th><?php _e( 'Custom Title', 'wcpb' ); ?></th>
 							<th><?php _e( 'Is Base', 'wcpb' ); ?></th>
 						</tr>
-					<?php for ( $i = 0; $i < count( $arr_optioncats ); $i++ ) : ?>
+					<?php for ( $i = 0; $i < count( $mix_optioncats ); $i++ ) : ?>
 						<tr>
-							<td><label for="<?php echo 'option-amount-' . $arr_optioncats[$i]->slug; ?>"><?php echo $arr_optioncats[$i]->name ?></label></td>
-							<td><input type="text" id="<?php echo 'option-amount-' . $arr_optioncats[$i]->slug; ?>" name="optioncat_amount_<?php echo $arr_optioncats[$i]->slug; ?>" value="<?php echo $wcpb->arr_optioncat_amounts[$arr_optioncats[$i]->slug] > 0 && $wcpb->arr_settings['optioncat_base_slug'] != $arr_optioncats[$i]->slug ? $wcpb->arr_optioncat_amounts[$arr_optioncats[$i]->slug] : ( $wcpb->arr_settings['optioncat_base_slug'] == $arr_optioncats[$i]->slug ? 1 : 0 ); ?>"<?php echo $wcpb->arr_settings['optioncat_base_slug'] == $arr_optioncats[$i]->slug ? ' readonly="readonly"' : ''; ?>></td>
-							<td><input type="text" id="<?php echo 'optioncat-title-' . $arr_optioncats[$i]->slug; ?>" name="optioncat_title_<?php echo $arr_optioncats[$i]->slug; ?>" value="<?php echo $wcpb->arr_optioncat_titles[$arr_optioncats[$i]->slug] != '' ? $wcpb->arr_optioncat_titles[$arr_optioncats[$i]->slug] : ''; ?>"></td>
+							<td><label for="<?php echo 'option-amount-' . $mix_optioncats[$i]->slug; ?>"><?php echo $mix_optioncats[$i]->name ?></label></td>
+							<td><input type="text" id="<?php echo 'option-amount-' . $mix_optioncats[$i]->slug; ?>" name="optioncat_amount_<?php echo $mix_optioncats[$i]->slug; ?>" value="<?php echo $wcpb->arr_optioncat_amounts[$mix_optioncats[$i]->slug] > 0 && $wcpb->arr_settings['optioncat_base_slug'] != $mix_optioncats[$i]->slug ? $wcpb->arr_optioncat_amounts[$mix_optioncats[$i]->slug] : ( $wcpb->arr_settings['optioncat_base_slug'] == $mix_optioncats[$i]->slug ? 1 : 0 ); ?>"<?php echo $wcpb->arr_settings['optioncat_base_slug'] == $mix_optioncats[$i]->slug ? ' readonly="readonly"' : ''; ?>></td>
+							<td><input type="text" id="<?php echo 'optioncat-title-' . $mix_optioncats[$i]->slug; ?>" name="optioncat_title_<?php echo $mix_optioncats[$i]->slug; ?>" value="<?php echo $wcpb->arr_optioncat_titles[$mix_optioncats[$i]->slug] != '' ? $wcpb->arr_optioncat_titles[$mix_optioncats[$i]->slug] : ''; ?>"></td>
 							<?php if ( $i == 0 ) : ?>
-							<td><input type="checkbox" id="<?php echo 'optioncat-base-' . $arr_optioncats[$i]->slug; ?>" name="optioncat_base_slug" value="<?php echo $arr_optioncats[$i]->slug; ?>"<?php echo $wcpb->arr_settings['optioncat_base_slug'] == $arr_optioncats[$i]->slug ? ' checked="checked"' : ''; ?>></td>
+							<td><input type="checkbox" id="<?php echo 'optioncat-base-' . $mix_optioncats[$i]->slug; ?>" name="optioncat_base_slug" value="<?php echo $mix_optioncats[$i]->slug; ?>"<?php echo $wcpb->arr_settings['optioncat_base_slug'] == $mix_optioncats[$i]->slug ? ' checked="checked"' : ''; ?>></td>
 							<?php endif; ?>
 						</tr>
 					<?php endfor; ?>

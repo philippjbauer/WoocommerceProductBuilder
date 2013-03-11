@@ -8,7 +8,6 @@
  * @version	0.1
  */
 global $wcpb;
-
 // Get subcategories
 $arr_optioncats = get_categories( 'taxonomy=product_cat&hide_empty=0&hierarchical=1&child_of=' . $wcpb->arr_settings['product_cat'] );
 ?>
@@ -50,7 +49,7 @@ $arr_options = new WP_Query( $arr_options_args );
 	?>
 	<li>
 		<div class="wcpb-option-thumb">
-			<img src="<?php echo ! $arr_option_image ? 'http://placehold.it/150x150' : $arr_option_image['guid']; ?>" alt="">
+			<img src="<?php echo ! $arr_option_image ? 'http://placehold.it/279x170' : $arr_option_image['guid']; ?>" alt="">
 		</div>
 		<h1><?php echo $obj_option->post_title; ?></h1>
 		<p><?php echo $obj_option->post_excerpt; ?></p>
@@ -58,7 +57,7 @@ $arr_options = new WP_Query( $arr_options_args );
 			<input type="hidden" name="option_id" value="<?php echo $obj_option->ID; ?>">
 			<input type="hidden" name="option_cat" value="<?php echo $obj_optioncat->slug; ?>">
 			<input type="hidden" name="option_qty" value="1">
-			<button type="submit" name="action" value="add_product_option"><?php _e( 'add to product', 'wcpb' ); ?></button>
+			<button type="submit" name="action" value="add_option"><?php _e( 'add to product', 'wcpb' ); ?></button>
 		</form>
 	</li>
 <?php endforeach; ?>

@@ -9,7 +9,7 @@ $mix_request = false;
 if ( isset( $_REQUEST ) )
 	$mix_request = $_REQUEST;
 do_action( 'wcpb_before_product_builder', $mix_request );
-var_dump( $mix_request );
+// var_dump( $mix_request );
 ?>
 
 <div id="wcpb-config-wrapper">
