@@ -1,24 +1,25 @@
 <?php
 /**
  * WooCommerce Product Builder Review Textlist Template
- *
- * @author	Philipp Bauer
- * @version	0.1
+ * @author Philipp Bauer <philipp.bauer@vividdesign.de>
+ * @version 0.6
  */
 global $wcpb;
+$arr_session_data = $wcpb->get_session_data();
+$arr_optioncat_titles = $wcpb->get_optioncat_titles();
 $str_optioncat_get = ! empty( $_GET['optioncat'] ) ? '&optioncat=' . $_GET['optioncat'] : '';
 ?>
 
-<?php if ( ! empty( $wcpb->arr_session_data['current_product'] ) ) : ?>
+<?php if ( ! empty( $arr_session_data['current_product'] ) ) : ?>
 <ul>
-<?php foreach ( $wcpb->arr_session_data['current_product'] as $str_optioncat_slug => $arr_optioncat ) : ?>
+<?php foreach ( $arr_session_data['current_product'] as $str_optioncat_slug => $arr_optioncat ) : ?>
 	<?php if ( count( $arr_optioncat ) > 0 ) : ?>
 	<li>
-		<?php echo $wcpb->arr_optioncat_titles[$str_optioncat_slug]; ?>
+		<?php echo $arr_optioncat_titles[$str_optioncat_slug]; ?>
 		<ul>
 		<?php foreach ( $arr_optioncat as $int_key => $int_option_id ) : ?>
 			<li>
-				<?php echo $wcpb->arr_session_data['options'][$int_option_id]['the_title']; ?>
+				<?php echo $arr_session_data['options'][$int_option_id]['the_title']; ?>
 				<span class="wcpb-align-right">
 					<a href="<?php echo get_permalink( get_the_ID() ) . $str_optioncat_get . "&action=remove_option&optionid=" . $int_option_id; ?>"><?php _e( 'remove', 'wcpb' ); ?></a>
 				</span>

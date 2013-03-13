@@ -1,11 +1,9 @@
 <?php
 /**
  * WooCommerce Product Builder Install Routine
- *
  * Install WCPB builder page, create export folder and update version in DB
- *
- * @author		Philipp Bauer
- * @version		1.0
+ * @author Philipp Bauer <philipp.bauer@vividdesign.de>
+ * @version 0.6
  */
 
 /**
@@ -58,7 +56,7 @@ function install_wc_product_builder() {
 	}
 	
 	// update version
-	update_option( 'wcpb_version', $wcpb->str_version );
+	update_option( 'wcpb_version', $wcpb->get_version() );
 }
  
 ?>

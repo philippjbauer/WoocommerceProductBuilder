@@ -1,15 +1,15 @@
 <?php
 /**
  * WooCommerce Product Builder Options Template
- *
  * Shows all options in a categorized manner.
- *
- * @author	Philipp Bauer
- * @version	0.1
+ * @author Philipp Bauer <philipp.bauer@vividdesign.de>
+ * @version 0.6
  */
 global $wcpb;
 // Get subcategories
-$arr_optioncats = get_categories( 'taxonomy=product_cat&hide_empty=0&hierarchical=1&child_of=' . $wcpb->arr_settings['product_cat'] );
+$arr_settings = $wcpb->get_settings();
+$arr_session_data = $wcpb->get_session_data();
+$arr_optioncats = get_categories( 'taxonomy=product_cat&hide_empty=0&hierarchical=1&child_of=' . $arr_settings['product_cat'] );
 ?>
 
 <?php
@@ -17,7 +17,7 @@ $i = 1;
 foreach ( $arr_optioncats as $obj_optioncat ) :
 ?>
 
-<ul id="<?php echo $obj_optioncat->slug; ?>"<?php echo ( ! isset( $_GET['optioncat'] ) && $i == 1 || isset( $_GET['optioncat'] ) && count( $wcpb->arr_session_data['options'] ) == 0 && $i == 1 ) ? ' class="active"' : ( isset( $_GET['optioncat'] ) && count( $wcpb->arr_session_data['options'] ) > 0 && $_GET['optioncat'] == $obj_optioncat->slug ? ' class="active"' : '' ) ?>>
+<ul id="<?php echo $obj_optioncat->slug; ?>"<?php echo ( ! isset( $_GET['optioncat'] ) && $i == 1 || isset( $_GET['optioncat'] ) && count( $arr_session_data['options'] ) == 0 && $i == 1 ) ? ' class="active"' : ( isset( $_GET['optioncat'] ) && count( $arr_session_data['options'] ) > 0 && $_GET['optioncat'] == $obj_optioncat->slug ? ' class="active"' : '' ); ?>>
 
 <?php
 // Get options from this category

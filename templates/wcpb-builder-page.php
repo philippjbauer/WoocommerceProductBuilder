@@ -1,9 +1,8 @@
 <?php
 /**
  * WooCommerce Product Builder Page Template
- *
- * @author	Philipp Bauer
- * @version	0.1
+ * @author Philipp Bauer <philipp.bauer@vividdesign.de>
+ * @version 0.6
  */
 $mix_request = false;
 if ( isset( $_REQUEST ) )
