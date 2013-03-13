@@ -321,10 +321,10 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 								$this->product_update();
 								$this->session_update();
 								$arr_session_data = $this->get_session_data();
-								$this->add_message( __( 'Option "' . $arr_session_data['options'][$args['option_id']]['the_title'] . '" added!', 'wcpb' ) );
+								$this->add_message( __( 'Option "' . $arr_session_data['options'][$args['option_id']]['title'] . '" added!', 'wcpb' ) );
 							}
 							else
-								$this->add_error( __( 'You can add "' . $arr_session_data['options'][$args['option_id']]['the_title'] . '" only once!', 'wcpb' ) );
+								$this->add_error( __( 'You can add "' . $arr_session_data['options'][$args['option_id']]['title'] . '" only once!', 'wcpb' ) );
 							// }
 						}
 						else
@@ -335,7 +335,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 						foreach ( $arr_session_data['current_product'] as $str_optioncat_slug => $arr_optioncat ) {
 							foreach ( $arr_optioncat as $int_key => $int_option_id ) {
 								if ( $args['optionid'] == $int_option_id ) {
-									$this->add_message( 'Option "' . __( $arr_session_data['options'][$args['optionid']]['the_title'] . '" removed!', 'wcpb'));
+									$this->add_message( 'Option "' . __( $arr_session_data['options'][$args['optionid']]['title'] . '" removed!', 'wcpb'));
 									unset( $arr_session_data['current_product'][$str_optioncat_slug][$int_key], $arr_session_data['options'][$int_option_id] );
 									$this->set_session_data( $arr_session_data );
 									$this->session_update();
@@ -405,19 +405,35 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 
 						// Create option info array
 						$arr_temp[$value] = array(
-							'ID' => $value,
-							'slug' => $arr_option_postdata['post_name'],
-							'the_title' => $arr_option_postdata['post_title'],
-							'thumbnail_guid' => $str_thumb_guid,
-							'raw_arr_option_postdata' => $arr_option_postdata,
-							'raw_arr_option_postmeta' => $arr_option_postmeta,
-							'raw_arr_thumb_postdata' => $arr_thumb_postdata,
+							'ID'					=> $value,
+							'slug'					=> $arr_option_postdata['post_name'],
+							'title'					=> $arr_option_postdata['post_title'],
+							'price'					=> floatval( $arr_option_postmeta['_price'][0] ),
+							'thumbnail_guid'		=> $str_thumb_guid,
+							'raw_option_postdata'	=> $arr_option_postdata,
+							'raw_option_postmeta'	=> $arr_option_postmeta,
+							'raw_thumb_postdata'	=> $arr_thumb_postdata,
 						);
 					}
 				}
 				$arr_session_data['options'] = $arr_temp;
 				$this->set_session_data( $arr_session_data );
 			}
+		}
+
+		/**
+		 * Return total product price.
+		 * @return float
+		 */
+		public function product_price() {
+			$arr_session_data = $this->get_session_data();
+			$flt_product_price = 0;
+
+			if ( ! empty( $arr_session_data['options'] ) )
+				foreach ( $arr_session_data['options'] as $arr_option )
+					$flt_product_price += $arr_option['price'];
+
+			return $flt_product_price;
 		}
 
 		/**
