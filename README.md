@@ -22,7 +22,7 @@ What are the goals of the WCPB?
 The plugin was build and tested with following versions of Wordpress and WooCommerce:
 
 * Wordpress 3.5.1
-* WooCommerce 1.6.6
+* WooCommerce 2.0.3
 
 Please report any conflicts with other versions or plugins.
 Please report if other versions of WP and WooCommerce work as well. Thanks!
@@ -52,6 +52,6 @@ will appear for further configuration. After you chose the parent catgory choose
 by the user. You can also define how many options of a category can be chosen. If you have a base-product you will
 want to set a maximum of 1 for example. You can also define custom tab-names that will appear in the frontend.
 
-# License
+## License
 
 The license is GNU GPL (see LICENSE.txt).

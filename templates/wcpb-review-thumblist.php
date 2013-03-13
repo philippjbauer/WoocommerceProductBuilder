@@ -1,7 +1,6 @@
 <?php
 /**
  * WooCommerce Product Builder Review Thumblist Template
- *
  * @author Philipp Bauer <philipp.bauer@vividdesign.de>
  * @version 0.6
  */
@@ -12,6 +11,7 @@ $int_counter = $arr_optioncat_amounts['total'];
 $str_optioncat_get = ! empty( $_GET['optioncat'] ) ? '&optioncat=' . $_GET['optioncat'] : '';
 ?>
 
+<div class="wcpb-config-review-thumbs">
 <ul>
 <?php
 if ( ! empty( $arr_session_data['current_product'] ) ) :
@@ -19,7 +19,7 @@ foreach ( $arr_session_data['current_product'] as $arr_optioncat ) :
 foreach ( $arr_optioncat as $int_option_id ) :
 ?>
 	<li class="has-product" style="background-image: url('<?php echo $wcpb->arr_session_data['options'][$int_option_id]['thumbnail_guid']; ?>');">
-		<a href="<?php echo get_permalink( get_the_ID() ) . $str_optioncat_get . "&action=remove_option&optionid=" . $int_option_id; ?>"><?php _e( 'remove ' . $arr_session_data['options'][$int_option_id]['the_title'], 'wcpb' ); ?></a>
+		<a href="<?php echo get_permalink( get_the_ID() ) . $str_optioncat_get . "&action=remove_option&optionid=" . $int_option_id; ?>"><div class="wcpb-tooltip"><?php _e( 'remove ' . $arr_session_data['options'][$int_option_id]['title'], 'wcpb' ); ?></div></a>
 	</li>
 <?php
 $int_counter--;
@@ -32,3 +32,4 @@ endif;
 <?php $int_counter--; endwhile; ?>
 	<div class="clearfix"></div>
 </ul>
+</div>

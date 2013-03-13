@@ -12,10 +12,8 @@ $arr_session_data = $wcpb->get_session_data();
 $arr_optioncats = get_categories( 'taxonomy=product_cat&hide_empty=0&hierarchical=1&child_of=' . $arr_settings['product_cat'] );
 ?>
 
-<?php
-$i = 1;
-foreach ( $arr_optioncats as $obj_optioncat ) :
-?>
+<section class="wcpb-category-options">
+<?php $i = 1; foreach ( $arr_optioncats as $obj_optioncat ) : ?>
 
 <ul id="<?php echo $obj_optioncat->slug; ?>"<?php echo ( ! isset( $_GET['optioncat'] ) && $i == 1 || isset( $_GET['optioncat'] ) && count( $arr_session_data['options'] ) == 0 && $i == 1 ) ? ' class="active"' : ( isset( $_GET['optioncat'] ) && count( $arr_session_data['options'] ) > 0 && $_GET['optioncat'] == $obj_optioncat->slug ? ' class="active"' : '' ); ?>>
 
@@ -33,10 +31,10 @@ $arr_options_args = array(
 	'orderby'	=> 'title',
 	'order'		=> 'ASC',
 );
-$arr_options = new WP_Query( $arr_options_args );
+$obj_options = new WP_Query( $arr_options_args );
 ?>
 
-<?php foreach ( $arr_options->posts as $obj_option ) : ?>
+<?php foreach ( $obj_options->posts as $obj_option ) : ?>
 	<?php
 	// Get option metadata / image
 	$arr_option_metadata = get_post_meta( $obj_option->ID );
@@ -47,7 +45,8 @@ $arr_options = new WP_Query( $arr_options_args );
 	<li>
 		<div class="wcpb-option-thumb"<?php echo ! $arr_option_image ? '' : ' style="background-image: url(' . $arr_option_image['guid'] . ')"'; ?>></div>
 		<h1><?php echo $obj_option->post_title; ?></h1>
-		<p><?php echo $obj_option->post_excerpt; ?></p>
+		<p><?php echo nl2br($obj_option->post_content); ?></p>
+		<p><?php echo number_format( $arr_option_metadata['_price'][0], 2, '.', ','); ?> €</p>
 		<form class="wcpb-option-form" action="<?php echo get_permalink( get_the_ID() ); echo $i == 1 ? '&optioncat=' . $arr_optioncats[1]->slug : '&optioncat=' . $obj_optioncat->slug; ?>" method="post">
 			<input type="hidden" name="option_id" value="<?php echo $obj_option->ID; ?>">
 			<input type="hidden" name="option_cat" value="<?php echo $obj_optioncat->slug; ?>">
@@ -59,7 +58,5 @@ $arr_options = new WP_Query( $arr_options_args );
 <div class="clearfix"></div>
 </ul>
 
-<?php
-$i++;
-endforeach;
-?>
+<?php $i++; endforeach; ?>
+</section>

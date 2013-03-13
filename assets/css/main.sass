@@ -124,8 +124,13 @@
 		padding: 10px 2.5%
 		border-right: 1px solid #ccc
 		float: left
-	li:nth-of-type(2n)
-		border-right: none
+		&:nth-of-type(2n)
+			border-right: none
+		h1
+			margin: 10px 0
+		p
+			margin: 0 0 10px
+			line-height: 1.35em
 
 .wcpb-option-thumb
 	background: #bfbfbf url('../img/thumb-placeholder.png') no-repeat center center
@@ -164,9 +169,28 @@
 			float: left
 			&.has-product
 				background-size: cover
+				text-indent: 0
+			a
+				display: block
+				background: none
+				width: 100%
+				height: 100%
+				&:hover
+					background: rgba(255, 255, 255, .66)
+					line-height: 100%
+					text-align: center
+					cursor: pointer
+					.wcpb-tooltip
+						display: none
+						font-size: 16px
+						text-indent: 0
+
 
 	& .wcpb-config-review-list
+		display: none
 		padding: 10px 3%
+		&.active
+			display: block
 		ul
 			list-style: none outside
 			border-bottom: 1px solid #333
@@ -181,10 +205,11 @@
 				font-weight: normal
 
 .wcpb-config-review-actions
-	display: none
+	padding: 10px 3%
+	text-align: right
 
 .wcpb-config-review-price
-	display: none
+	padding: 10px 3%
 
 /**
  * HTML5 Boilerplate Clearfix
