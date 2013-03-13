@@ -1,5 +1,5 @@
-WooCommerce Product Builder -- Let customers build their products!
-==================================================================
+WooCommerce Product Builder
+===========================
 
 ## Early version warning!
 
@@ -51,3 +51,7 @@ In the WCPB Settings, first choose your parent category and save it. The child c
 will appear for further configuration. After you chose the parent catgory choose how many options can be chosen
 by the user. You can also define how many options of a category can be chosen. If you have a base-product you will
 want to set a maximum of 1 for example. You can also define custom tab-names that will appear in the frontend.
+
+# License
+
+The license is GNU GPL (see LICENSE.txt).
