@@ -5,13 +5,14 @@
  * @version 0.6
  */
 global $wcpb;
-$arr_session_data = $wcpb->get_session_data();
+$arr_settings		= $wcpb->get_settings();
+$arr_session_data	= $wcpb->get_session_data();
 ?>
 <div class="wcpb-config-review-price">
-	<div class="total"><?php echo number_format( $wcpb->product_price(), 2, '.', ',' ); ?> €</div>
-	<div class="tax"><?php _e( 'incl. VAT, excl. shipping', 'wcpb' ); ?></div>
+	<div class="wcpb-total"><?php echo number_format( $wcpb->product_price(), 2, '.', ',' ) . ' ' . $arr_settings['currency_symbol']; ?></div>
+	<div class="wcpb-tax-info"><?php echo nl2br( $arr_settings['tax_information'] ); ?></div>
 	<form action="<?php echo get_permalink( get_the_ID() ); ?>" method="post">
-		<button name="action" value="add_to_cart"><?php _e( 'add to cart', 'wcpb' ) ?></button>
+		<button class="wcpb-addtocart" name="action" value="add_to_cart"><?php _e( 'add to cart', 'wcpb' ) ?></button>
 	</form>
 </div>
 <?php

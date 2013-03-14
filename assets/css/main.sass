@@ -188,28 +188,50 @@
 
 	& .wcpb-config-review-list
 		display: none
-		padding: 10px 3%
+		padding: 0 3% 10px
 		&.active
 			display: block
 		ul
 			list-style: none outside
-			border-bottom: 1px solid #333
+			border-bottom: none
 		li
 			width: 100%
 			font-weight: bold
 			ul
-				border-bottom: none
+				border-bottom: 1px solid #ccc
 			li
 				width: 94%
 				padding-left: 6%
 				font-weight: normal
 
 .wcpb-config-review-actions
-	padding: 10px 3%
+	padding: 0 3% 10px
 	text-align: right
 
 .wcpb-config-review-price
 	padding: 10px 3%
+	text-align: right
+.wcpb-total
+	font-size: 24px
+	line-height: 24px
+.wcpb-tax-info
+	font-size: 12px
+	line-height: 24px
+.wcpb-addtocart
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fff), to(#eee))
+	background-image: -webkit-linear-gradient(#fff, #eee)
+	background-image: -moz-linear-gradient(#fff, #eee)
+	background-image: -o-linear-gradient(#fff, #eee)
+	background-image: linear-gradient(#fff, #eee)
+	width: 100%
+	height: 40px
+	margin-top: 10px
+	-webkit-border-radius: 3px
+	-moz-border-radius: 3px
+	border-radius: 3px
+	-webkit-box-shadow: 0 1px 3px #999
+	-moz-box-shadow: 0 1px 3px #999
+	box-shadow: 0 1px 3px #999
 
 /**
  * HTML5 Boilerplate Clearfix

@@ -291,61 +291,13 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 						$this->add_message( __( 'All options have been removed!', 'wcpb' ));
 						break;
 					case "add_to_cart":
-						$arr_session_data = $this->get_session_data();
-						if ( count( $arr_session_data['current_product'] ) > 0 )
-							$this->add_to_cart();
-						else
-							$this->add_error( __( 'Please create your custom product first!', 'wcpb' ) );
+						$this->product_add_to_cart();
 						break;
 					case "add_option":
-						$arr_session_data = $this->get_session_data();
-						$arr_optioncat_amounts = $this->get_optioncat_amounts();
-						
-						if ( count( $arr_session_data['options'] ) >= $arr_optioncat_amounts['total'] ) {
-							$this->add_error( __( 'Maximum amount of options reached!', 'wcpb' ) );
-							break;
-						}
-
-						// Check if category is in session_data, if not create it
-						if ( ! isset( $arr_session_data['current_product'][$args['option_cat']] ) ) {
-							$arr_session_data['current_product'][$args['option_cat']] = array();
-							$this->set_session_data( $arr_session_data );
-						}
-
-						// Check if max amount of allowed options is already in the category, if not: add product
-						if ( count( $arr_session_data['current_product'][$args['option_cat']] ) < $arr_optioncat_amounts[$args['option_cat']] ) {
-							// for ( $i = 0; $i < $args['option_qty']; $i++ ) {
-							if ( false === array_search( $args['option_id'], $arr_session_data['current_product'][$args['option_cat']] ) ) {
-								$arr_session_data['current_product'][$args['option_cat']][] = (int) $args['option_id'];
-								$this->set_session_data( $arr_session_data );
-								$this->product_update();
-								$this->session_update();
-								$arr_session_data = $this->get_session_data();
-								$this->add_message( __( 'Option "' . $arr_session_data['options'][$args['option_id']]['title'] . '" added!', 'wcpb' ) );
-							}
-							else
-								$this->add_error( __( 'You can add "' . $arr_session_data['options'][$args['option_id']]['title'] . '" only once!', 'wcpb' ) );
-							// }
-						}
-						else
-							$this->add_error( __( 'You can only choose ' . $this->arr_optioncat_amounts[$args['option_cat']] . ' option(s) from "' . $this->arr_optioncat_titles[$args['option_cat']] . '"', 'wcpb' ) );
+						$this->product_add_option( $args );
 						break;
 					case "remove_option":
-						$arr_session_data = $this->get_session_data();
-						foreach ( $arr_session_data['current_product'] as $str_optioncat_slug => $arr_optioncat ) {
-							foreach ( $arr_optioncat as $int_key => $int_option_id ) {
-								if ( $args['optionid'] == $int_option_id ) {
-									$this->add_message( 'Option "' . __( $arr_session_data['options'][$args['optionid']]['title'] . '" removed!', 'wcpb'));
-									unset( $arr_session_data['current_product'][$str_optioncat_slug][$int_key], $arr_session_data['options'][$int_option_id] );
-									$this->set_session_data( $arr_session_data );
-									$this->session_update();
-								}
-							}
-						}
-						if ( count( $arr_session_data['options']) == 0 ) {
-							$this->session_clear();
-							$this->session_update();
-						}
+						$this->product_remove_option( $args );
 						break;
 				}
 			}
@@ -434,6 +386,78 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 					$flt_product_price += $arr_option['price'];
 
 			return $flt_product_price;
+		}
+
+		/**
+		 * Add product option to product.
+		 * @param  array $args
+		 * @return void
+		 */
+		public function product_add_option( $args ) {
+			$arr_session_data = $this->get_session_data();
+			$arr_optioncat_amounts = $this->get_optioncat_amounts();
+			
+			if ( count( $arr_session_data['options'] ) >= $arr_optioncat_amounts['total'] ) {
+				$this->add_error( __( 'Maximum amount of options reached!', 'wcpb' ) );
+				break;
+			}
+
+			// Check if category is in session_data, if not create it
+			if ( ! isset( $arr_session_data['current_product'][$args['option_cat']] ) ) {
+				$arr_session_data['current_product'][$args['option_cat']] = array();
+				$this->set_session_data( $arr_session_data );
+			}
+
+			// Check if max amount of allowed options is already in the category, if not: add product
+			if ( count( $arr_session_data['current_product'][$args['option_cat']] ) < $arr_optioncat_amounts[$args['option_cat']] ) {
+				// for ( $i = 0; $i < $args['option_qty']; $i++ ) {
+				if ( false === array_search( $args['option_id'], $arr_session_data['current_product'][$args['option_cat']] ) ) {
+					$arr_session_data['current_product'][$args['option_cat']][] = (int) $args['option_id'];
+					$this->set_session_data( $arr_session_data );
+					$this->product_update();
+					$this->session_update();
+					$arr_session_data = $this->get_session_data();
+					$this->add_message( __( 'Option "' . $arr_session_data['options'][$args['option_id']]['title'] . '" added!', 'wcpb' ) );
+				}
+				else
+					$this->add_error( __( 'You can add "' . $arr_session_data['options'][$args['option_id']]['title'] . '" only once!', 'wcpb' ) );
+				// }
+			}
+			else
+				$this->add_error( __( 'You can only choose ' . $this->arr_optioncat_amounts[$args['option_cat']] . ' option(s) from "' . $this->arr_optioncat_titles[$args['option_cat']] . '"', 'wcpb' ) );
+		}
+
+		/**
+		 * Remove product option from product.
+		 * @param  array $args
+		 * @return void
+		 */
+		public function product_remove_option( $args ) {
+			$arr_session_data = $this->get_session_data();
+			
+			foreach ( $arr_session_data['current_product'] as $str_optioncat_slug => $arr_optioncat ) {
+				foreach ( $arr_optioncat as $int_key => $int_option_id ) {
+					if ( $args['optionid'] == $int_option_id ) {
+						$this->add_message( 'Option "' . __( $arr_session_data['options'][$args['optionid']]['title'] . '" removed!', 'wcpb'));
+						unset( $arr_session_data['current_product'][$str_optioncat_slug][$int_key], $arr_session_data['options'][$int_option_id] );
+						$this->set_session_data( $arr_session_data );
+						$this->session_update();
+					}
+				}
+			}
+			
+			if ( count( $arr_session_data['options']) == 0 ) {
+				$this->session_clear();
+				$this->session_update();
+			}
+		}
+
+		public function product_add_to_cart( $args ) {
+			$arr_session_data = $this->get_session_data();
+			if ( count( $arr_session_data['current_product'] ) > 0 )
+				$this->add_message( __( 'Your product has been added to the cart!', 'wcpb' ) );
+			else
+				$this->add_error( __( 'Please create your custom product first!', 'wcpb' ) );
 		}
 
 		/**
