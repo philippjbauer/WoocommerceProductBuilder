@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce Product Builder
  * Plugin URI: https://github.com/philippjbauer/WoocommerceProductBuilder
  * Description: Lets users build their own products.
- * Version: 0.6
+ * Version: 0.8
  * Author: Philipp Bauer
  * Author URI: https://github.com/philippjbauer
  *
@@ -13,7 +13,7 @@
  * @package WooCommerce Product Builder
  * @category Extension
  * @author Philipp Bauer <philipp.bauer@vividdesign.de>
- * @version 0.6
+ * @version 0.8
  */
 
 /**
@@ -37,7 +37,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * Current WooCommerce Product Builder Version
 		 * @var string
 		 */
-		private $str_version = "0.6";
+		private $str_version = "0.8";
 		
 		/**
 		 * Contains the WooCommerce Product Builder options fetched from the database
@@ -89,6 +89,8 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @return void
 		 */
 		public function init() {
+			global $woocommerce;
+
 			/* SESSION ACTIONS */
 			$this->session_start();
 			$this->session_update();
@@ -106,6 +108,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 			add_action( 'wcpb_before_product_builder', array( &$this, 'user_actions' ) );
 			add_action( 'wcpb_before_product_builder', array( &$this, 'product_actions' ) );
 			add_action( 'wcpb_before_product_builder', array( &$this, 'show_messages' ) );
+			add_action( 'wcpb_before_product_builder', array( $woocommerce, 'show_messages' ) );
 			add_action( 'wcpb_include_template', array( &$this, 'include_template' ) );
 			
 			/* BACKEND INCLUDES */
@@ -125,20 +128,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 				include( 'admin/wcpb-install.php' );	
 				add_action( 'init', 'install_wc_product_builder', 1 );
 			}
-		}
-		
-		/**
-		 * Refresh Settings
-		 * @return void
-		 */
-		public function settings_refresh() {
-			if ( false !== get_option( 'wcpb_settings' ) ) {
-				$this->set_settings( get_option( 'wcpb_settings' ) );					// Set WooCommerce Product Builder Settings
-				$arr_settings = $this->get_settings();									// Get Settings
-				$this->set_optioncat_amounts( $arr_settings['optioncat_amounts'] );		// Set how many options may be chosen (per category) by the user
-				$this->set_optioncat_titles( $arr_settings['optioncat_titles'] );		// Set custom titles for product builder subcategories
-			}
-			else $this->set_settings( array() );
 		}
 		
 		/**
@@ -163,6 +152,31 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 */
 		public function backend_includes() {
 			include( 'wcpb-backend.php' );		// Provides backend functions
+		}
+
+		/**
+		 * Includes given template.
+		 * @param  string $template_file path to file relative to plugin root
+		 * @return void
+		 */
+		public function include_template( $template_file, $args = null ) {
+			ob_start();
+			include plugin_dir_path( __FILE__ ) . $template_file;
+			echo ob_get_clean();
+		}
+		
+		/**
+		 * Refresh Settings
+		 * @return void
+		 */
+		public function settings_refresh() {
+			if ( false !== get_option( 'wcpb_settings' ) ) {
+				$this->set_settings( get_option( 'wcpb_settings' ) );					// Set WooCommerce Product Builder Settings
+				$arr_settings = $this->get_settings();									// Get Settings
+				$this->set_optioncat_amounts( $arr_settings['optioncat_amounts'] );		// Set how many options may be chosen (per category) by the user
+				$this->set_optioncat_titles( $arr_settings['optioncat_titles'] );		// Set custom titles for product builder subcategories
+			}
+			else $this->set_settings( array() );
 		}
 		
 		/**
@@ -193,7 +207,11 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 			if ( isset( $_SESSION['wcpb'] ) ) {
 				unset( $_SESSION['wcpb'] );	// destroys variables from WCPB plugin only
 				$this->set_session_data( array() );
+				$this->session_update();
+				//$this->add_message( 'session cleared!' );
 			}
+			//else
+				//$this->add_error('session not cleared!');
 		}
 		
 		/**
@@ -287,7 +305,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 				switch ( $args['action'] ) {
 					case "restart":
 						$this->session_clear();
-						$this->session_update();
 						$this->add_message( __( 'All options have been removed!', 'wcpb' ));
 						break;
 					case "add_to_cart":
@@ -448,29 +465,96 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 			
 			if ( count( $arr_session_data['options']) == 0 ) {
 				$this->session_clear();
-				$this->session_update();
 			}
 		}
+		
+		/**
+		 * Creates custom product.
+		 * @param  array $arr_product
+		 * @return mixed
+		 */
+		public function product_create( $arr_product ) {
+			if ( is_array( $arr_product ) ) {
+				global $wpdb;
+				$arr_settings = $this->get_settings();
 
-		public function product_add_to_cart( $args ) {
-			$arr_session_data = $this->get_session_data();
-			if ( count( $arr_session_data['current_product'] ) > 0 )
-				$this->add_message( __( 'Your product has been added to the cart!', 'wcpb' ) );
-			else
-				$this->add_error( __( 'Please create your custom product first!', 'wcpb' ) );
+				// make sure there is a custom product name and slug
+				$arr_settings['custom_product_name'] = isset( $arr_settings['custom_product_name'] ) ?: "Your Product";
+				$arr_settings['custom_product_slug'] = isset( $arr_settings['custom_product_slug'] ) ?: "your-product";
+
+				// create random product_sku and check if it exists
+				do {
+					$str_product_sku = substr( sha1( mt_rand() . microtime() ), mt_rand( 0, 35 ), 5 );
+				}
+				while ( $wpdb->get_row( "SELECT post_id FROM $wpdb->postmeta WHERE _sku = '" . $str_product_sku . "'", ARRAY_N ) != null );
+
+				// create product object
+				$arr_product_postdata = array(
+					"post_author"		=> 1,
+					"post_title"		=> $arr_settings['custom_product_name'] . ' (' . $str_product_sku . ')',
+					"post_name"			=> $arr_settings['custom_product_slug'] . '-' . $str_product_sku,
+					"post_type"			=> "product",
+					"post_status"		=> "publish",
+					"comment_status"	=> "closed",
+					"ping_status"		=> "closed",
+				);
+
+				// create product postmeta object
+				$arr_product_postmeta = array(
+					"_manage_stock"		=> "no",
+					"_price"			=> $this->product_price(),
+					"_sku"				=> $str_product_sku,
+					"_stock"			=> 0,
+					"_stock_status"		=> "instock",
+					"_tax_status"		=> "taxable",
+					"_visibility"		=> "hidden",
+					"_product_options"	=> $arr_product['current_product'],
+				);
+
+				// insert product object in db:wp_posts
+				$int_post_id = wp_insert_post( $arr_product_postdata );
+				if ( $int_post_id != 0 ) {
+					// insert product postmeta in db:wp_postmeta
+					foreach ( $arr_product_postmeta as $meta_key => $meta_value )
+						update_post_meta( $int_post_id, $meta_key, $meta_value );
+					
+					// insert product into parent product_cat in db:wp_term_relationships
+					$mix_term_result = wp_set_object_terms( $int_post_id, intval( $arr_settings['product_cat'] ), 'product_cat' );
+
+					return $int_post_id;
+				}
+				else return false;
+			}
+			else return false;
 		}
 
 		/**
-		 * Includes given template.
-		 * @param  string $template_file path to / and template filename
+		 * Add product to WooCommerce cart
+		 * @param  int $int_post_id
 		 * @return void
 		 */
-		public function include_template( $template_file, $args = null ) {
-			ob_start();
-			include plugin_dir_path( __FILE__ ) . $template_file;
-			echo ob_get_clean();
+		public function product_add_to_cart( $int_post_id = false ) {
+
+			// if no product (post_id) is given, create product and set post_id
+			if ( false === $int_post_id ) {
+				$arr_session_data = $this->get_session_data();
+				if ( count( $arr_session_data['current_product'] ) > 0 ) {
+					$int_post_id = $this->product_create( $arr_session_data );
+					if ( 0 == $int_post_id )
+						$this->add_error( __( 'Couldn\'t insert product into database! Please try again.', 'wcpb' ) );
+				}
+				else
+					$this->add_error( __( 'Please create your custom product first!', 'wcpb' ) );
+			}
+
+			// add product to cart
+			if ( is_int( $int_post_id ) ) {
+				$this->session_clear();
+				$_REQUEST['add-to-cart'] = $int_post_id;
+				woocommerce_add_to_cart_action();
+			}
 		}
-		
+
 		/**
 		 * Activate the plugin.
 		 * @return void

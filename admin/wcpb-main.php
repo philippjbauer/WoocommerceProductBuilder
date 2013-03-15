@@ -2,7 +2,7 @@
 /**
  * WooCommerce Product Builder Main Backend Settings Page
  * @author Philipp Bauer <philipp.bauer@vividdesign.de>
- * @version 0.6
+ * @version 0.8
  */
 global $wcpb_backend;
 
@@ -32,6 +32,9 @@ if ( ! empty( $arr_postdata ) ) {
 		else if ( $key == 'optioncat_base_slug' ) {
 			$arr_settings_update['optioncat_base_slug'] = $arr_postdata['optioncat_base_slug'];
 			$arr_settings_update['optioncat_amounts'][$arr_postdata['optioncat_base_slug']] = 1;
+		}
+		else if ( $key == 'custom_product_slug' ) {
+			$arr_settings_update[$key] = str_replace( array( ",", ".", "_", " ", "@" ), array( "", "", "-", "-", ""), $value);
 		}
 		else {
 			$arr_settings_update[$key] = $value;
@@ -85,6 +88,14 @@ $arr_optioncat_titles = $arr_settings['optioncat_titles'];
 					<tr>
 						<td><label for="wcpb-tax-information"><?php _e( 'Tax Information (e.g. "incl. VAT, excl. Shipping")', 'wcpb' ); ?></label></td>
 						<td><input type="text" id="wcpb-tax-information" name="postdata[tax_information]" value="<?php echo isset( $arr_settings['tax_information'] ) ? $arr_settings['tax_information'] : '' ?>"></td>
+					</tr>
+					<tr>
+						<td><label for="wcpb-custom-product-name"><?php _e( 'Custom Product Name (e.g. "Your custom product")', 'wcpb' ); ?></label></td>
+						<td><input type="text" id="wcpb-custom-product-name" name="postdata[custom_product_name]" value="<?php echo isset( $arr_settings['custom_product_name'] ) ? $arr_settings['custom_product_name'] : '' ?>"></td>
+					</tr>
+					<tr>
+						<td><label for="wcpb-custom-product-slug"><?php _e( 'Custom Product Slug (e.g. "custom-product")', 'wcpb' ); ?></label></td>
+						<td><input type="text" id="wcpb-custom-product-slug" name="postdata[custom_product_slug]" value="<?php echo isset( $arr_settings['custom_product_slug'] ) ? $arr_settings['custom_product_slug'] : '' ?>"></td>
 					</tr>
 				</table>
 			</fieldset>

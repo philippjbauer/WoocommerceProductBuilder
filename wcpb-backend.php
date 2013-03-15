@@ -2,7 +2,7 @@
 /**
  * WooCommerce Product Builder Backend Functions
  * @author Philipp Bauer <philipp.bauer@vividdesign.de>
- * @version 0.6
+ * @version 0.8
  */
 
 /**
