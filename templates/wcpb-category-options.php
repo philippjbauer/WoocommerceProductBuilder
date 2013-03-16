@@ -3,7 +3,7 @@
  * WooCommerce Product Builder Options Template
  * Shows all options in a categorized manner.
  * @author Philipp Bauer <philipp.bauer@vividdesign.de>
- * @version 0.8
+ * @version 0.9
  */
 global $wcpb;
 // Get subcategories

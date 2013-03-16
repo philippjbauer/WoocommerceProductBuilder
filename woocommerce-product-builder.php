@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce Product Builder
  * Plugin URI: https://github.com/philippjbauer/WoocommerceProductBuilder
  * Description: Lets users build their own products.
- * Version: 0.8
+ * Version: 0.9
  * Author: Philipp Bauer
  * Author URI: https://github.com/philippjbauer
  *
@@ -13,7 +13,7 @@
  * @package WooCommerce Product Builder
  * @category Extension
  * @author Philipp Bauer <philipp.bauer@vividdesign.de>
- * @version 0.8
+ * @version 0.9
  */
 
 /**
@@ -37,8 +37,44 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * Current WooCommerce Product Builder Version
 		 * @var string
 		 */
-		private $str_version = "0.8";
+		private $str_version = "0.9";
 		
+		/**
+		 * Version Option Name (wp_options)
+		 * @var string
+		 */
+		private $str_version_option_name = 'wcpb_version';
+		
+		/**
+		 * Page ID Option Name (wp_options)
+		 * @var string
+		 */
+		private $str_pageid_option_name = 'wcpb_page_id';
+		
+		/**
+		 * Settings Option Name (wp_options)
+		 * @var string
+		 */
+		private $str_settings_option_name = 'wcpb_settings';
+		
+		/**
+		 * WCPB Product Term Option Name (wp_options)
+		 * @var string
+		 */
+		private $str_productcat_term_id_option_name = 'wcpb_productcat_term_id';
+		
+		/**
+		 * WCPB Product Category Term (taxonomy)
+		 * @var string
+		 */
+		private $str_productcat_term = 'WCPB Custom Product';
+		
+		/**
+		 * WCPB Product Category Slug (taxonomy)
+		 * @var string
+		 */
+		private $str_productcat_slug = 'wcpb-custom-product';
+
 		/**
 		 * Contains the WooCommerce Product Builder options fetched from the database
 		 * @var array
@@ -124,7 +160,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @return void
 		 */
 		public function install() {
-			if ( get_option( 'wcpb_version' ) != $this->get_version() ) {
+			if ( get_option( $this->get_version_option_name() ) != $this->get_version() ) {
 				include( 'admin/wcpb-install.php' );	
 				add_action( 'init', 'install_wc_product_builder', 1 );
 			}
@@ -319,7 +355,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 				}
 			}
 		}
-		
+
 		/**
 		 * Handle product actions.
 		 * @return void
@@ -337,17 +373,16 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @return void
 		 */
 		public function product_sort() {
-			$arr_temp = array();
-			$arr_optioncat_titles = $this->get_optioncat_titles();
 			$arr_session_data = $this->get_session_data();
-
-			foreach ( $arr_optioncat_titles as $key => $value ) {
-				if ( ! empty( $arr_session_data['current_product'][$key] ) )
-					$arr_temp[$key] = $arr_session_data['current_product'][$key];
+			if ( ! empty( $arr_session_data['current_product'] ) ) {
+				$arr_temp = array();
+				$arr_optioncat_titles = $this->get_optioncat_titles();
+				foreach ( $arr_optioncat_titles as $key => $value )
+					if ( ! empty( $arr_session_data['current_product'][$key] ) )
+						$arr_temp[$key] = $arr_session_data['current_product'][$key];
+				$arr_session_data['current_product'] = $arr_temp;
+				$this->set_session_data( $arr_session_data );
 			}
-
-			$arr_session_data['current_product'] = $arr_temp;
-			$this->set_session_data( $arr_session_data );
 		}
 
 		/**
@@ -479,8 +514,8 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 				$arr_settings = $this->get_settings();
 
 				// make sure there is a custom product name and slug
-				$arr_settings['custom_product_name'] = isset( $arr_settings['custom_product_name'] ) ?: "Your Product";
-				$arr_settings['custom_product_slug'] = isset( $arr_settings['custom_product_slug'] ) ?: "your-product";
+				$arr_settings['custom_product_name'] = isset( $arr_settings['custom_product_name'] ) ? $arr_settings['custom_product_name'] : "Your Product";
+				$arr_settings['custom_product_slug'] = isset( $arr_settings['custom_product_slug'] ) ? $arr_settings['custom_product_slug'] : "your-product";
 
 				// create random product_sku and check if it exists
 				do {
@@ -519,7 +554,11 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 						update_post_meta( $int_post_id, $meta_key, $meta_value );
 					
 					// insert product into parent product_cat in db:wp_term_relationships
-					$mix_term_result = wp_set_object_terms( $int_post_id, intval( $arr_settings['product_cat'] ), 'product_cat' );
+					$mix_term_id = get_option( $this->get_productcat_term_id_option_name() );
+					if ( false !== $mix_term_id )
+						$mix_term_result = wp_set_object_terms( $int_post_id, intval( $mix_term_id ), 'product_cat' );
+					else
+						return false;
 
 					return $int_post_id;
 				}
@@ -631,6 +670,54 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 */
 		public function get_version() {
 			return $this->str_version;
+		}
+
+		/**
+		 * Get version option name
+		 * @return string
+		 */
+		public function get_version_option_name() {
+			return $this->str_version_option_name;
+		}
+
+		/**
+		 * Get pageid option name
+		 * @return string
+		 */
+		public function get_pageid_option_name() {
+			return $this->str_pageid_option_name;
+		}
+
+		/**
+		 * Get settings option name
+		 * @return string
+		 */
+		public function get_settings_option_name() {
+			return $this->str_settings_option_name;
+		}
+
+		/**
+		 * Get productcat_term_id option name
+		 * @return string
+		 */
+		public function get_productcat_term_id_option_name() {
+			return $this->str_productcat_term_id_option_name;
+		}
+
+		/**
+		 * Get product category term
+		 * @return string
+		 */
+		public function get_productcat_term() {
+			return $this->str_productcat_term;
+		}
+
+		/**
+		 * Get product category slug
+		 * @return string
+		 */
+		public function get_productcat_slug() {
+			return $this->str_productcat_slug;
 		}
 
 		/**

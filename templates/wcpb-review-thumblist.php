@@ -2,7 +2,7 @@
 /**
  * WooCommerce Product Builder Review Thumblist Template
  * @author Philipp Bauer <philipp.bauer@vividdesign.de>
- * @version 0.8
+ * @version 0.9
  */
 global $wcpb;
 $arr_session_data = $wcpb->get_session_data();

@@ -2,7 +2,7 @@
 /**
  * WooCommerce Product Builder Page Template
  * @author Philipp Bauer <philipp.bauer@vividdesign.de>
- * @version 0.8
+ * @version 0.9
  */
 
 /* HANDLE POST/GET DATA */

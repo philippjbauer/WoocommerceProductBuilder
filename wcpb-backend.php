@@ -2,15 +2,18 @@
 /**
  * WooCommerce Product Builder Backend Functions
  * @author Philipp Bauer <philipp.bauer@vividdesign.de>
- * @version 0.8
+ * @version 0.9
  */
 
 /**
 * WC_Product_Builder Backend Functions
 */
 class WC_Product_Builder_Backend extends WC_Product_Builder {
-	
-	function __construct() 	{
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() 	{
 		$this->init();
 	}
 
@@ -24,38 +27,59 @@ class WC_Product_Builder_Backend extends WC_Product_Builder {
 	}
 
 	/**
-	 * Fuzzy Key Search.
-	 * Searches for a key in an array that does not need to exactly match the $needle
-	 * @param  array $haystack
-	 * @param  string $needle
-	 * @return boolean
-	 */
-	public function fuzzy_key_search( $haystack, $needle ) {
-		foreach ( $haystack as $key => $value ) {
-			if ( false !== strpos( $key, $needle ) ) {
-				return true;
-				exit;
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Update Settings in Database.
 	 * @param  array $array
 	 * @return void
 	 */
-	public function settings_update_db( $array ) {
-		$arr_settings = get_option( 'wcpb_settings' );
+	public function settings_update( $array ) {
+		$arr_settings = get_option( $this->get_settings_option_name() );
 		if ( ! is_array( $arr_settings ) )
 			$arr_settings = array();
 		if ( is_array( $array ) ) {
 			$arr_updates = array_merge( $arr_settings, $array );
 			if ( $arr_settings != $arr_updates )
-				if ( ! update_option( 'wcpb_settings', $arr_updates ) )
+				if ( ! update_option( $this->get_settings_option_name(), $arr_updates ) )
 					die( _e( "Settings couldn't be updated! Update to DB failed.", 'wcpb' ) );
 		}
-		else die( _e( "Settings couldn't be updated! No array given for settings_update_db.", 'wcpb' ) );
+		else die( _e( "Settings couldn't be updated! No array given for settings_update.", 'wcpb' ) );
+	}
+
+	/**
+	 * Delete Settings from Database.
+	 * @return boolean
+	 */
+	public function settings_delete() {
+		return delete_option( $this->get_settings_option_name() );
+	}
+		
+	/**
+	 * Returns option category order.
+	 * @return array
+	 */
+	public function optioncat_order() {
+		global $wpdb;
+		$arr_optioncat_order = $wpdb->get_results("SELECT t.slug
+											FROM wp_terms AS t
+											INNER JOIN wp_term_taxonomy AS tt
+											ON t.term_id = tt.term_id
+											LEFT JOIN wp_woocommerce_termmeta AS tm
+											ON (t.term_id = tm.woocommerce_term_id AND tm.meta_key = 'order')
+											WHERE tt.taxonomy IN ('product_cat')
+											AND tt.parent != 0
+											ORDER BY CAST(tm.meta_value AS SIGNED) ASC, t.name ASC", ARRAY_A);
+		return $arr_optioncat_order;
+	}
+
+	/**
+	 * Returns optioncat titles in WooCommerce order (see: WooCommerce -> Products / Categories).
+	 * @param  array $arr_optioncat_titles
+	 * @return array
+	 */
+	public function optioncat_sort( $arr_optioncat_titles ) {
+		$arr_temp = array();
+		foreach ( $this->optioncat_order() as $arr_optioncat )
+			$arr_temp[$arr_optioncat['slug']] = $arr_optioncat_titles[$arr_optioncat['slug']];
+		return $arr_temp;
 	}
 
 	/**

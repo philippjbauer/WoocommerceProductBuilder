@@ -5,7 +5,7 @@
  * Shows messages in the frontend.
  *
  * @author Philipp Bauer <philipp.bauer@vividdesign.de>
- * @version 0.8
+ * @version 0.9
  */
 ?>
 <?php if ( ! empty( $args['messages'] ) ) : ?>
