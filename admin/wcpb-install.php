@@ -3,19 +3,19 @@
  * WooCommerce Product Builder Install Routine
  * Install WCPB builder page, create export folder and update version in DB
  * @author Philipp Bauer <philipp.bauer@vividdesign.de>
- * @version 0.8
+ * @version 0.9
  */
 
 /**
  * Install the product builder page.
- *
- * @access public
  * @return void
  */
-function install_wc_product_builder_page() {
-	global $wpdb;
-	$mix_page_found = $wpdb->get_var( "SELECT ID FROM $wpdb->posts WHERE post_name = 'product-builder' LIMIT 1" );	// check if builder page already exists
-	if ( $mix_page_found == null ) {
+function install_page() {
+	global $wcpb;
+	// Check if page already exists
+	$mix_page = get_page_by_title( __( 'Product Builder', 'wcpb' ) );	// check if builder page already exists
+	if ( null === $mix_page ) {
+		// Prepare page
 		$arr_page_data = array(
 			'post_status' 		=> 'publish',
 			'post_type' 		=> 'page',
@@ -26,25 +26,35 @@ function install_wc_product_builder_page() {
 			'post_parent' 		=> '',
 			'comment_status' 	=> 'closed'
 		);
+		// Create page
 		$int_page_id = wp_insert_post( $arr_page_data );
-		
-		update_option( 'woocommerce_product_builder_page_id', $int_page_id );
+		// Update page_id
+		update_option( $wcpb->get_pageid_option_name(), $int_page_id );
 	}
 }
 
 /**
- * WooCommerce Product Builder Install Routine.
- *
- * @access public
+ * Install the product builder category.
  * @return void
  */
-function install_wc_product_builder() {
+function install_product_cat() {
 	global $wcpb;
+	// check if product category exists
+	$mix_term_exists = term_exists( $wcpb->get_productcat_term() );
+	if ( 0 == $mix_term_exists ) {
+		$mix_term_result = wp_insert_term( $wcpb->get_productcat_term(), 'product_cat', array( 'slug' => $wcpb->get_productcat_slug() ) );
+		if ( is_array( $mix_term_result ) )
+			update_option( $wcpb->get_productcat_term_id_option_name(), intval( $mix_term_result['term_id'] ) );
+		else
+			update_option( $wcpb->get_productcat_term_id_option_name(), false );
+	}
+}
 
-	// Install product page if it doesn't already exist
-	install_wc_product_builder_page();
-	
-	// Install folder for Product Builder exports
+/**
+ * Install the export directory.
+ * @return void
+ */
+function install_export_dir() {
 	$arr_upload_dir =  wp_upload_dir();
 	$str_export_url = $arr_upload_dir['basedir'] . '/wcpb_exports';
 
@@ -54,9 +64,25 @@ function install_wc_product_builder() {
 			fclose($fh);
 		}
 	}
+}
+
+/**
+ * WooCommerce Product Builder Install Routine.
+ * @access public
+ * @return void
+ */
+function install_wc_product_builder() {
+	global $wcpb;
+
+	// Install product page
+	install_page();
+	// Install product category
+	install_product_cat();
+	// Install folder for Product Builder exports
+	install_export_dir();
 	
-	// update version
-	update_option( 'wcpb_version', $wcpb->get_version() );
+	// Update version
+	update_option( $wcpb->get_version_option_name(), $wcpb->get_version() );
 }
  
 ?>
