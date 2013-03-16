@@ -2,15 +2,18 @@
 /**
  * WooCommerce Product Builder Main Backend Settings Page
  * @author Philipp Bauer <philipp.bauer@vividdesign.de>
- * @version 0.8
+ * @version 0.9
  */
 global $wcpb_backend;
 
-/* GET SETTINGS */
+/* GET POST DATA AND SETTINGS */
 $arr_postdata = ! empty( $_POST['postdata'] ) ? $_POST['postdata'] : null;
 $arr_settings = $wcpb_backend->get_settings();
-$arr_settings_update = $arr_settings;
+
+/* SET VARIABLES */
 $arr_product_cats = get_categories( 'taxonomy=product_cat&hide_empty=0&hierarchical=1' );
+$arr_settings['product_cat'] = isset( $arr_settings['product_cat'] ) ? $arr_settings['product_cat'] : $arr_product_cats[0]->term_id;
+$arr_settings_update = $arr_settings;
 $arr_optioncats = isset( $arr_settings['product_cat'] ) ? get_categories( 'taxonomy=product_cat&hide_empty=0&hierarchical=1&child_of=' . $arr_settings['product_cat'] ) : false;
 
 /* UPDATE SETTINGS */
@@ -42,20 +45,32 @@ if ( ! empty( $arr_postdata ) ) {
 
 	}
 
-	// if base category is set but not posted, remove base category
-	if ( ! array_key_exists( 'optioncat_base_slug', $arr_postdata ) )
-		unset( $arr_settings_update['optioncat_base_slug'] );
+	// clean out old optioncat titles and amounts (maybe they've been changed in the backend)
+	$arr_compare_titles = array();
+	foreach ( $arr_optioncats as $obj_optioncat )
+		$arr_compare_titles[] = $obj_optioncat->slug;
+	foreach ( $arr_settings_update['optioncat_titles'] as $key => $value )
+		if ( false === array_search( $key, $arr_compare_titles ) )
+			unset( $arr_settings_update['optioncat_titles'][$key], $arr_settings_update['optioncat_amounts'][$key] );
 
 	// if not all option categories we're custom-titled, set their original titles
 	foreach ( $arr_optioncats as $obj_optioncat )
 		if ( empty( $arr_settings_update['optioncat_titles'][$obj_optioncat->slug] ) )
 			$arr_settings_update['optioncat_titles'][$obj_optioncat->slug] = $obj_optioncat->name;
 
+	// sort option categories
+	$arr_settings_update['optioncat_titles'] = $wcpb_backend->optioncat_sort( $arr_settings_update['optioncat_titles'] );
+
+	// if base category is set but not posted, remove base category
+	if ( ! array_key_exists( 'optioncat_base_slug', $arr_postdata ) )
+		unset( $arr_settings_update['optioncat_base_slug'] );
+
 	// if the settings have changed, update database
-	if ( $arr_settings != $arr_settings_update ) {
-		$wcpb_backend->settings_update_db( $arr_settings_update );
-		$wcpb_backend->settings_refresh();
-	}
+	//if ( $arr_settings != $arr_settings_update ) {
+		$wcpb_backend->settings_delete();						// remove old settings
+		$wcpb_backend->settings_update( $arr_settings_update );	// write new settings
+		$wcpb_backend->settings_refresh();						// refresh settings within class
+	//}
 }
 
 /* GET NEW SETTINGS */
@@ -68,7 +83,7 @@ $arr_optioncat_titles = $arr_settings['optioncat_titles'];
 	
 	<hgroup class="wcpb-admin-header">
 		<h2><?php _e( 'Main Settings', 'wcpb' ); ?></h2>
-		<p><?php _e( 'WooCommerce Product Builder ' . get_option( 'wcpb_version' ), 'wcpb') ?></p>
+		<p><?php _e( 'WooCommerce Product Builder ' . get_option( 'wcpb_version' ), 'wcpb' ) ?></p>
 	</hgroup>
 	
 	<div class="wcpb-admin-form-wrap">
@@ -82,20 +97,20 @@ $arr_optioncat_titles = $arr_settings['optioncat_titles'];
 				</hgroup>
 				<table class="wcpb-admin-form-elem">
 					<tr>
-						<td><label for="wcpb-currency-symbol"><?php _e( 'Currency Symbol (e.g. "€")', 'wcpb' ); ?></label></td>
-						<td><input type="text" id="wcpb-currency-symbol" name="postdata[currency_symbol]" value="<?php echo isset( $arr_settings['currency_symbol'] ) ? $arr_settings['currency_symbol'] : '' ?>"></td>
+						<td><label for="wcpb-currency-symbol"><?php _e( 'Currency Symbol', 'wcpb' ); ?></label></td>
+						<td><input type="text" id="wcpb-currency-symbol" name="postdata[currency_symbol]" placeholder="<?php _e( 'e.g. €', 'wcpb' ); ?>" value="<?php echo isset( $arr_settings['currency_symbol'] ) ? $arr_settings['currency_symbol'] : '' ?>"></td>
 					</tr>
 					<tr>
-						<td><label for="wcpb-tax-information"><?php _e( 'Tax Information (e.g. "incl. VAT, excl. Shipping")', 'wcpb' ); ?></label></td>
-						<td><input type="text" id="wcpb-tax-information" name="postdata[tax_information]" value="<?php echo isset( $arr_settings['tax_information'] ) ? $arr_settings['tax_information'] : '' ?>"></td>
+						<td><label for="wcpb-tax-information"><?php _e( 'Tax Information', 'wcpb' ); ?></label></td>
+						<td><input type="text" id="wcpb-tax-information" name="postdata[tax_information]" placeholder="<?php _e( 'e.g. incl. VAT, excl. Shipping', 'wcpb' ); ?>" value="<?php echo isset( $arr_settings['tax_information'] ) ? $arr_settings['tax_information'] : '' ?>"></td>
 					</tr>
 					<tr>
-						<td><label for="wcpb-custom-product-name"><?php _e( 'Custom Product Name (e.g. "Your custom product")', 'wcpb' ); ?></label></td>
-						<td><input type="text" id="wcpb-custom-product-name" name="postdata[custom_product_name]" value="<?php echo isset( $arr_settings['custom_product_name'] ) ? $arr_settings['custom_product_name'] : '' ?>"></td>
+						<td><label for="wcpb-custom-product-name"><?php _e( 'Custom Product Name', 'wcpb' ); ?></label></td>
+						<td><input type="text" id="wcpb-custom-product-name" name="postdata[custom_product_name]" placeholder="<?php _e( 'e.g. Your custom product', 'wcpb' ); ?>" value="<?php echo isset( $arr_settings['custom_product_name'] ) ? $arr_settings['custom_product_name'] : '' ?>"></td>
 					</tr>
 					<tr>
-						<td><label for="wcpb-custom-product-slug"><?php _e( 'Custom Product Slug (e.g. "custom-product")', 'wcpb' ); ?></label></td>
-						<td><input type="text" id="wcpb-custom-product-slug" name="postdata[custom_product_slug]" value="<?php echo isset( $arr_settings['custom_product_slug'] ) ? $arr_settings['custom_product_slug'] : '' ?>"></td>
+						<td><label for="wcpb-custom-product-slug"><?php _e( 'Custom Product Slug', 'wcpb' ); ?></label></td>
+						<td><input type="text" id="wcpb-custom-product-slug" name="postdata[custom_product_slug]" placeholder="<?php _e( 'e.g. custom-product', 'wcpb' ); ?>" value="<?php echo isset( $arr_settings['custom_product_slug'] ) ? $arr_settings['custom_product_slug'] : '' ?>"></td>
 					</tr>
 				</table>
 			</fieldset>
