@@ -58,3 +58,52 @@
 			-webkit-box-shadow: 0 0 1px #333
 			-moz-box-shadow: 0 0 1px #333
 			box-shadow: 0 0 1px #333
+
+.wcpb-admin-inline
+	margin-right: 10px
+	float: left
+
+.wcpb-admin-order-info
+	display: table
+	width: 100%
+	margin: 10px 0
+	border-spacing: 10px
+
+	.wcpb-admin-shipping,
+	.wcpb-admin-products
+		display: table-cell
+		background-color: #fefefe
+		padding: 10px 20px 20px
+		border-radius: 5px
+	.wcpb-admin-shipping
+		width: 20%
+
+	.wcpb-admin-shipping-title
+		width: 10%
+	.wcpb-admin-product-id
+		width: 5%
+	.wcpb-admin-product-details
+		width: 15%
+
+	table
+		width: 100%
+		padding-bottom: 20px
+		border-spacing: 0
+		tbody tr:hover
+			background-color: #f9f9f9
+		thead tr
+			background-color: #efefef
+			th
+				border: none
+		td, th
+			height: 35px
+			margin: 0
+			padding: 0 30px
+			text-align: left
+			line-height: 35px
+			border-bottom: 1px solid #ccc
+			&:first-of-type
+				padding-left: 15px
+
+.wcpb-admin-order-info + .wcpb-admin-form-elem
+	padding: 0 0 10px 10px

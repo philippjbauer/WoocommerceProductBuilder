@@ -365,7 +365,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 			$this->product_update();
 
 			// DEBUG
-			// var_dump($this->get_session_data());
+			// $this->debug();
 		}
 
 		/**
@@ -469,14 +469,14 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 					$this->product_update();
 					$this->session_update();
 					$arr_session_data = $this->get_session_data();
-					$this->add_message( __( 'Option "' . $arr_session_data['options'][$args['option_id']]['title'] . '" added!', 'wcpb' ) );
+					$this->add_message( sprintf( __( 'Option "%s" added!', 'wcpb' ), $arr_session_data['options'][$args['option_id']]['title'] ) );
 				}
 				else
-					$this->add_error( __( 'You can add "' . $arr_session_data['options'][$args['option_id']]['title'] . '" only once!', 'wcpb' ) );
+					$this->add_error( sprintf( __( 'You can add "%s" only once!', 'wcpb' ), $arr_session_data['options'][$args['option_id']]['title'] ) );
 				// }
 			}
 			else
-				$this->add_error( __( 'You can only choose ' . $this->arr_optioncat_amounts[$args['option_cat']] . ' option(s) from "' . $this->arr_optioncat_titles[$args['option_cat']] . '"', 'wcpb' ) );
+				$this->add_error( sprintf( __( 'You can only choose %d option(s) from "%s"', 'wcpb' ), $this->arr_optioncat_amounts[$args['option_cat']], $this->arr_optioncat_titles[$args['option_cat']] ) );
 		}
 
 		/**
@@ -490,7 +490,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 			foreach ( $arr_session_data['current_product'] as $str_optioncat_slug => $arr_optioncat ) {
 				foreach ( $arr_optioncat as $int_key => $int_option_id ) {
 					if ( $args['optionid'] == $int_option_id ) {
-						$this->add_message( 'Option "' . __( $arr_session_data['options'][$args['optionid']]['title'] . '" removed!', 'wcpb'));
+						$this->add_message( sprintf( __( 'Option "%s" removed!', 'wcpb'), $arr_session_data['options'][$args['optionid']]['title'] ) );
 						unset( $arr_session_data['current_product'][$str_optioncat_slug][$int_key], $arr_session_data['options'][$int_option_id] );
 						$this->set_session_data( $arr_session_data );
 						$this->session_update();
@@ -519,9 +519,9 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 
 				// create random product_sku and check if it exists
 				do {
-					$str_product_sku = substr( sha1( mt_rand() . microtime() ), mt_rand( 0, 35 ), 5 );
+					$str_product_sku = strval( substr( sha1( mt_rand() . microtime() ), mt_rand( 0, 35 ), 5 ) );
 				}
-				while ( $wpdb->get_row( "SELECT post_id FROM $wpdb->postmeta WHERE _sku = '" . $str_product_sku . "'", ARRAY_N ) != null );
+				while ( $wpdb->get_row( "SELECT post_id FROM $wpdb->postmeta WHERE '_sku' = '" . $str_product_sku . "'", ARRAY_N ) != null );
 
 				// create product object
 				$arr_product_postdata = array(
@@ -544,6 +544,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 					"_tax_status"		=> "taxable",
 					"_visibility"		=> "hidden",
 					"_product_options"	=> $arr_product['current_product'],
+					"_product_custom"	=> true,
 				);
 
 				// insert product object in db:wp_posts
@@ -552,7 +553,7 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 					// insert product postmeta in db:wp_postmeta
 					foreach ( $arr_product_postmeta as $meta_key => $meta_value )
 						update_post_meta( $int_post_id, $meta_key, $meta_value );
-					
+
 					// insert product into parent product_cat in db:wp_term_relationships
 					$mix_term_id = get_option( $this->get_productcat_term_id_option_name() );
 					if ( false !== $mix_term_id )
@@ -573,7 +574,6 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 		 * @return void
 		 */
 		public function product_add_to_cart( $int_post_id = false ) {
-
 			// if no product (post_id) is given, create product and set post_id
 			if ( false === $int_post_id ) {
 				$arr_session_data = $this->get_session_data();
@@ -588,10 +588,26 @@ if ( ! class_exists( 'WC_Product_Builder' ) && $bool_woocommerce_active ) {
 
 			// add product to cart
 			if ( is_int( $int_post_id ) ) {
-				$this->session_clear();
-				$_REQUEST['add-to-cart'] = $int_post_id;
-				woocommerce_add_to_cart_action();
+				global $woocommerce;
+				if ( $woocommerce->cart->add_to_cart( $int_post_id, 1 ) ) {
+					$this->session_clear();
+					$this->add_message( 'Added product to cart!', 'wcpb' );
+				}
 			}
+		}
+
+		public function debug() {
+			echo "Get:<br><pre>";
+			var_dump( $_GET );
+			echo "</pre><br>Post:<br><pre>";
+			var_dump( $_POST );
+			echo "</pre><br>Request:<br><pre>";
+			var_dump( $_REQUEST );
+			echo "</pre><br>Session:<br><pre>";
+			var_dump( $_SESSION );
+			echo "</pre><br>Session Data:<br><pre>";
+			var_dump( $this->get_session_data() );
+			echo "</pre>";
 		}
 
 		/**

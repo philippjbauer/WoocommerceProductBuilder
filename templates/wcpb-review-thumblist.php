@@ -19,7 +19,7 @@ foreach ( $arr_session_data['current_product'] as $arr_optioncat ) :
 foreach ( $arr_optioncat as $int_option_id ) :
 ?>
 	<li class="has-product" style="background-image: url('<?php echo $wcpb->arr_session_data['options'][$int_option_id]['thumbnail_guid']; ?>');">
-		<a href="<?php echo get_permalink( get_the_ID() ) . $str_optioncat_get . "&action=remove_option&optionid=" . $int_option_id; ?>"><div class="wcpb-tooltip"><?php _e( 'remove ' . $arr_session_data['options'][$int_option_id]['title'], 'wcpb' ); ?></div></a>
+		<a href="<?php echo get_permalink( get_the_ID() ) . $str_optioncat_get . "&action=remove_option&optionid=" . $int_option_id; ?>"><div class="wcpb-tooltip"><?php sprintf( _e( 'remove %s', 'wcpb' ), $arr_session_data['options'][$int_option_id]['title'] ); ?></div></a>
 	</li>
 <?php
 $int_counter--;
