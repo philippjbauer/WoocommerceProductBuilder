@@ -161,10 +161,11 @@ if ( ! empty ( $_POST['postdata'] ) ) {
 ?>
 <div class="wrap">
 
-	<hgroup class="wcpb-admin-header">
+	<!-- <hgroup class="wcpb-admin-header"> -->
+		<div id="icon-tools" class="icon32"></div>
 		<h2><?php _e( 'Export Orders', 'wcpb' ); ?></h2>
-		<p><?php _e( 'WooCommerce Product Builder ' . get_option( 'wcpb_version' ), 'wcpb' ) ?></p>
-	</hgroup>
+		<!-- <p><?php _e( 'WooCommerce Product Builder ' . get_option( 'wcpb_version' ), 'wcpb' ) ?></p> -->
+	<!-- </hgroup> -->
 	
 	<form action="<?php echo $_SERVER['PHP_SELF'] . "?page=" . $_GET['page']; ?>" method="post" name="wcpb-export-form">
 		<div id="poststuff">
@@ -177,11 +178,11 @@ if ( ! empty ( $_POST['postdata'] ) ) {
 							<h3 class="hndle"><span><?php _e( 'Export Settings', 'wcpb' ); ?></span></h3>
 							<div class="inside">
 								<div class="wcpb-admin-form-elem wcpb-admin-inline">
-									<label for="wcpb-date-start"><?php _e( 'Start Date', 'wcpb' ); ?></label>
+									<label for="wcpb-date-start" class="wcpb-admin-disabled-label"><?php _e( 'Start Date', 'wcpb' ); ?></label>
 									<input type="text" name="postdata[export-date-start]" placeholder="<?php _e( 'dd-mm-yyyy', 'wcpb' ); ?>" id="wcpb-date-start" disabled="disabled">
 								</div>
 								<div class="wcpb-admin-form-elem wcpb-admin-inline">
-									<label for="wcpb-date-end"><?php _e( 'End Date', 'wcpb' ); ?></label>
+									<label for="wcpb-date-end" class="wcpb-admin-disabled-label"><?php _e( 'End Date', 'wcpb' ); ?></label>
 									<input type="text" name="postdata[export-date-end]" placeholder="<?php _e( 'dd-mm-yyyy', 'wcpb' ); ?>" id="wcpb-date-start" disabled="disabled">
 								</div>
 								<div class="wcpb-admin-form-elem wcpb-admin-inline">

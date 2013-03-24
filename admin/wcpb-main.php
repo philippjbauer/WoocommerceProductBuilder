@@ -88,10 +88,11 @@ $arr_optioncat_titles = $arr_settings['optioncat_titles'];
 
 <div class="wrap">
 	
-	<hgroup class="wcpb-admin-header">
-		<h2><?php _e( 'Main Settings', 'wcpb' ); ?></h2>
-		<p><?php _e( 'WooCommerce Product Builder ' . get_option( 'wcpb_version' ), 'wcpb' ) ?></p>
-	</hgroup>
+	<!-- <hgroup class="wcpb-admin-header"> -->
+	<div id="icon-edit" class="icon32"></div>
+	<h2><?php _e( 'Main Settings', 'wcpb' ); ?></h2>
+	<!-- <p><?php _e( 'WooCommerce Product Builder ' . get_option( 'wcpb_version' ), 'wcpb' ) ?></p> -->
+	<!-- </hgroup> -->
 	
 	<form action="<?php echo $_SERVER['PHP_SELF'] . "?page=" . $_GET['page']; ?>" method="post" name="wcpb-settings-form">
 		<div id="poststuff">
