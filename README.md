@@ -24,12 +24,14 @@ The plugin was build and tested with following versions of Wordpress and WooComm
 * Wordpress 3.5.1
 * WooCommerce 2.0.3
 
+> Installation was still working on updated Wordpress (3.7.1) and WooCommerce (2.0.20)
+
 Please report any conflicts with other versions or plugins.
 Please report if other versions of WP and WooCommerce work as well. Thanks!
 
 ## Installation
 
-WCPB depends on an installed WooCommerce!
+WCPB depends on an installed and set up WooCommerce!
 
 Installs like every other ordinary Wordpress plugin.
 Put files into wp-content/plugins/ and activate in the backend.
@@ -46,7 +48,10 @@ The user build product will be added to this category as soon as the user puts i
 The child categories hold the actual product options that the customer can choose to add to the product.
 The categories will be used for tabs in the frontend. You can customize the tab-names in the WCPB Settings.
 
-### 3. Setup
+### 3. Create products in child categories
+Create products via WooCommerce and add them to your child categories.
+
+### 4. Setup
 In the WCPB Settings, first choose your parent category and save it. The child categories of this category 
 will appear for further configuration. After you chose the parent catgory choose how many options can be chosen
 by the user. You can also define how many options of a category can be chosen. If you have a base-product you will
